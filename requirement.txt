@@ -1,0 +1,41 @@
+ZEST_PROJECT/
+│
+├── frontend/ (Muhd Farhan)
+│   ├── ui/
+│   │   ├── login.py
+│   │   ├── register.py
+│   │   ├── profile.py
+│   │   ├── chat.py
+│   │   └── home.py
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   └── styles/
+│   │
+│   └── main.py
+│
+├── backend/ (Balaa - Leader)
+│   ├── auth.py
+│   ├── matching.py
+│   ├── posts.py
+│   ├── chat_logic.py
+│   ├── profile.py
+│   └── location.py
+│
+├── database/ (Jasswin Rao)
+│   ├── connection.py
+│   ├── models.sql
+│   ├── users_table.sql
+│   ├── messages_table.sql
+│   ├── posts_table.sql
+│   └── schema_design.txt
+│
+├── config/
+│   ├── settings.py
+│   └── secrets.env
+│
+├── docs/
+│   ├── system_design.md
+│   └── api_flow.md
+│
+└── requirements.txt
