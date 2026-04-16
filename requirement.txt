@@ -24,11 +24,11 @@ ZEST_PROJECT/
 │
 ├── database/ (Jasswin Rao)
 │   ├── connection.py
-│   ├── models.sql
+│   ├── init_tables.sql
 │   ├── users_table.sql
 │   ├── messages_table.sql
-│   ├── posts_table.sql
-│   └── schema_design.txt
+│   └── posts_table.sql
+│   
 │
 ├── config/
 │   ├── settings.py
@@ -39,3 +39,8 @@ ZEST_PROJECT/
 │   └── api_flow.md
 │
 └── requirements.txt
+
+Frontend: QtPy
+Backend: Python
+Cloud DB: Aiven PostgreSQL
+GitHub teamwork
