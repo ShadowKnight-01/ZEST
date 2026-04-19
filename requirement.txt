@@ -43,4 +43,3 @@ ZEST_PROJECT/
 Frontend: QtPy
 Backend: Python
 Cloud DB: Aiven PostgreSQL
-GitHub teamwork
