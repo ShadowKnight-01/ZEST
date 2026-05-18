@@ -66,13 +66,13 @@ def register_new_user(full_name, username, email, password, confirm_password):
         conn.commit()
 
     except Exception as e:
+        conn.rollback()
         return f"Database Error: {e}"
 
     finally:
         # close curser and conection
         cursor.close()
         conn.close()
-
     return f"User have successfully registered. ID Num = {unique_id}."
 
 
@@ -97,6 +97,7 @@ def log_in_user(identifier, password):
             return "Wrong password, try again"
         
     except Exception as e:
+        conn.rollback()
         return f"Database Error: {e}"
         
     finally:
