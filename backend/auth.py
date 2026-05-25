@@ -1,5 +1,5 @@
 import re               #Python RegEx
-from Database.connection import connection
+from Database.connection import connection 
 from datetime import datetime
 
 # Registration page

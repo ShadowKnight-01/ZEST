@@ -23,6 +23,7 @@ def send_message(sender_id, receiver_id, message):
         conn.close()
     return "message sended succesfully"
 
+# define of getting and sendding message
 def get_message(userid1, userid2):
 
     conn = connection()

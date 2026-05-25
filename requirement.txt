@@ -2,11 +2,11 @@ ZEST_PROJECT/
 │
 ├── frontend/ (Muhd Farhan)
 │   ├── ui/
-│   │   ├── login.py
+│   │   ├── login.py     Y 
 │   │   ├── register.py
 │   │   ├── profile.py
-│   │   ├── chat.py
-│   │   └── home.py
+│   │   ├── chat.py      Y
+│   │   └── home.py      Y
 │   │
 │   ├── assets/
 │   │   ├── images/
@@ -15,10 +15,10 @@ ZEST_PROJECT/
 │   └── main.py
 │
 ├── backend/ (Balaa - Leader)
-│   ├── auth.py
+│   ├── auth.py         Y
 │   ├── matching.py
 │   ├── posts.py
-│   ├── chat_logic.py
+│   ├── chat_logic.py    Y
 │   ├── profile.py
 │   └── location.py
 │
