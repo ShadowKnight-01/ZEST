@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from backend import chat_logic            # import chatlogic.py function to ui
 
 class Ui_Form(object):
     def setupUi(self, Form):
