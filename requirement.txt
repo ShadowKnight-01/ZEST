@@ -19,15 +19,15 @@ ZEST_PROJECT/
 │   ├── matching.py
 │   ├── posts.py
 │   ├── chat_logic.py    Y
-│   ├── profile.py
+│   ├── profile.py       Y
 │   └── location.py
 │
 ├── database/ (Jasswin Rao)
-│   ├── connection.py
-│   ├── init_tables.sql
-│   ├── users_table.sql
-│   ├── messages_table.sql
-│   └── posts_table.sql
+│   ├── connection.py      Y
+│   ├── init_tables.sql    Y
+│   ├── users_table.sql    Y 
+│   ├── messages_table.sql Y
+│   └── posts_table.sql    Y
 │   
 │
 ├── config/
