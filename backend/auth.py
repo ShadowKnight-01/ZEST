@@ -1,23 +1,24 @@
-import re               #Python RegEx
 from Database.connection import connection 
 from datetime import datetime
+import re               # Python RegEx
+import hashlib          # extra security for password
 
 # Registration page
-
 # Validate and verify format of the email
 def valid_email(email):                                             # ^ = start with      $ = end with
     edu_email_pattern = r"^[\w\.-]+@[\w\.-]+\.edu\.my$"             # to compare and check as if is the email given is student email or not by check the edu and my part
     return re.match(edu_email_pattern, email) is not None                       # \w is carackter from a to Z digit from 0-9 and _ caracker
-
 
 def valid_full_name(full_name):
     name_pattern = r"^[A-Za-z]+([ /@.'-][A-Za-z]+)*$"
     return re.match(name_pattern, full_name) is not None
 
 def valid_username(username):
-    username_pattern = r"^[A-Za-z0-9_]+$"
+    username_pattern = r"^[A-Za-z0-9_.-]+$"
     return re.match(username_pattern, username) is not None
 
+def hash_password(password):
+    return hashlib.blake2b(password.encode()).hexdigest()
 
 # Register new user on app
 def register_new_user(full_name, username, email, password, confirm_password):
@@ -43,17 +44,25 @@ def register_new_user(full_name, username, email, password, confirm_password):
     if len(password) < 8:
         return "Your password must contain at least 8 characters"
     
+
     conn = connection()
     cursor = conn.cursor()
 
     try:
         # check if email or usernameis a duplicate
         cursor.execute("SELECT email, username FROM user WHERE email=%s OR username=%s", (email, username))   # %s is like a empty slot/space to put things
-        if cursor.fetchone():      # if email , username found in databse it will be true dont have then continue
-            return "Email or Username already exists"
+        result =  cursor.fetchone()      # if email , username found in databse it will be true dont have then continue
+
+        if result:
+            if result[0] == email:
+                return "Email already exists"
+            if result[1] == username:
+                return "Username already exists"
+        
+        hashed_password = hash_password(password)
         
         # put the value in if the name email password are acording to rule given
-        cursor.execute("INSERT INTO user (full_name, username, email, password) VALUES (%s, %s, %s, %s)", (full_name, username, email, password))
+        cursor.execute("INSERT INTO user (full_name, username, email, password) VALUES (%s, %s, %s, %s)", (full_name, username, email, hashed_password))
 
         # database for unique user id
         database_last_id = cursor.lastrowid
@@ -91,13 +100,14 @@ def log_in_user(identifier, password):
         if not result: 
             return "Email or Username not found, You may need to register your account"
         
+        hashed_password = hash_password(password)
+        
         password_in_db = result[0]
 
-        if password_in_db != password:
+        if password_in_db != hashed_password:
             return "Wrong password, try again"
         
     except Exception as e:
-        conn.rollback()
         return f"Database Error: {e}"
         
     finally:
