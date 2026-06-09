@@ -115,6 +115,3 @@ def log_in_user(identifier, password):
         conn.close()
 
     return "User have successfully log in"
-
-#   You should soon add:
-#   hashes=d password    security

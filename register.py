@@ -16,7 +16,7 @@ class RegisterPage(QWidget):
         super().__init__()
 
         self.setWindowTitle("Register")
-        self.resize(500, 650)
+        self.resize(500, 700)
 
         # ===== STYLESHEET =====
         self.setStyleSheet("""
