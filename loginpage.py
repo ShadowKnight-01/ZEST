@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton
 )
 from PyQt5.QtCore import Qt
+# Impord the backend code from the file
+from backend.auth import log_in_user
 from register import RegisterPage
 import sys
 
@@ -16,7 +18,7 @@ class LoginPage(QWidget):
         super().__init__()
 
         self.setWindowTitle("Login Page")
-        self.resize(500, 600)
+        self.resize(500, 700)
 
         # STYLESHEET 
         self.setStyleSheet("""
@@ -123,9 +125,9 @@ class LoginPage(QWidget):
         card_layout.addSpacing(20)
 
         # EMAIL / USERNAME 
-        self.inputUser = QLineEdit()
-        self.inputUser.setPlaceholderText("Email or Username")
-        card_layout.addWidget(self.inputUser)
+        self.inputUsername = QLineEdit()
+        self.inputUsername.setPlaceholderText("Email or Username")
+        card_layout.addWidget(self.inputUsername)
 
         # PASSWORD 
         self.inputPass = QLineEdit()
@@ -166,8 +168,12 @@ class LoginPage(QWidget):
 
     # LOGIN FUNCTION 
     def login(self):
-        username = self.inputUser.text()
-        password = self.inputPass.text()
+        identifier = self.inputUsername.text().strip()    # change input inputUsername to input identifier
+        password   = self.inputPass.text() 
+
+        result = log_in_user(identifier, password)
+
+        print(result)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
