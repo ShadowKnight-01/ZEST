@@ -68,7 +68,31 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+<<<<<<< HEAD
 
+=======
+        
+        self.btn_send.clicked.connect(self.send_message_ui)      #bjuyu
+            
+        def send_message_ui(self):                                     #bjuyu
+            message = self.input_message.text()
+            if message == "":
+                return
+            sender_id = 1
+            receiver_id = 2
+            result = chat_logic.send_message(
+                sender_id,
+                receiver_id,
+                message
+            )
+            self.list_messages.addItem("You: " + message)
+            self.input_message.clear()
+            print(result)                        
+
+<<<<<<< HEAD:UI/chat_page.py
+        def retranslateUi(self, Form):
+=======
+>>>>>>> 1c6d9b9 ( Fresh clean commit: Supabase setup complete)
         self.btn_send.clicked.connect(self.send_message_ui)      #bjuyu
             
         def send_message_ui(self):                                     #bjuyu
@@ -87,6 +111,10 @@ class Ui_Form(object):
             print(result)                                        #bjuyu
 
         def retranslateUi(self, Form):  
+<<<<<<< HEAD
+=======
+>>>>>>> main:chat_page.py
+>>>>>>> 1c6d9b9 ( Fresh clean commit: Supabase setup complete)
             _translate = QtCore.QCoreApplication.translate
             Form.setWindowTitle(_translate("Form", "Form"))
             self.label_chat_name.setText(_translate("Form", "TextLabel"))
