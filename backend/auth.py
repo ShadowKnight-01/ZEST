@@ -1,7 +1,8 @@
-from Database.connection import connection 
+from Database.db_connect import supabase
 from datetime import datetime
 import re               # Python RegEx
 import hashlib          # extra security for password
+import uuid
 
 # Registration page
 # Validate and verify format of the email
@@ -44,74 +45,57 @@ def register_new_user(full_name, username, email, password, confirm_password):
     if len(password) < 8:
         return "Your password must contain at least 8 characters"
     
-
-    conn = connection()
-    cursor = conn.cursor()
-
     try:
-        # check if email or usernameis a duplicate
-        cursor.execute("SELECT email, username FROM user WHERE email=%s OR username=%s", (email, username))   # %s is like a empty slot/space to put things
-        result =  cursor.fetchone()      # if email , username found in databse it will be true dont have then continue
+        # check if email is a duplicate
+        email_check = supabase.table("user").select("id").eq("email", email).execute()
+        if email_check.data:      # if email found in databse it will be true dont have then continue
+            return "Email already exists"
 
-        if result:
-            if result[0] == email:
-                return "Email already exists"
-            if result[1] == username:
-                return "Username already exists"
+        # check if username is a duplicate
+        username_check = supabase.table("user").select("id").eq("username", username).execute()
+        if username_check.data:   # if username found in databse it will be true dont have then continue
+            return "Username already exists"
         
         hashed_password = hash_password(password)
+        user_id = str(uuid.uuid4())    # database for unique user id
         
         # put the value in if the name email password are acording to rule given
-        cursor.execute("INSERT INTO user (full_name, username, email, password) VALUES (%s, %s, %s, %s)", (full_name, username, email, hashed_password))
+        supabase.table("user").insert({
+            "user_id"  : user_id,    # database for unique user id
+            "full_name": full_name,
+            "username" : username,
+            "email"    : email,
+            "password" : hashed_password
+        }).execute()
 
-        # database for unique user id
-        database_last_id = cursor.lastrowid
-
-        # idnum = make unic id num calcalation like each person get one unic num when their sign in
-        today = datetime.now().strftime("%y%m%d%H%M")
-        unique_id = f"{today}{database_last_id:04d}"
-
-        cursor.execute("UPDATE user SET user_id = %s WHERE id = %s", (unique_id, database_last_id))
-        conn.commit()
+        return f"User have successfully registered. ID = {user_id}."
 
     except Exception as e:
-        conn.rollback()
         return f"Database Error: {e}"
 
-    finally:
-        # close curser and conection
-        cursor.close()
-        conn.close()
-    return f"User have successfully registered. ID Num = {unique_id}."
 
 
 # log in page
 def log_in_user(identifier, password):
-
-    conn = connection()
-    cursor = conn.cursor()
-
     try:
         # check if there are email saved or not if yes check the passwordd to as if is it same or not
-        cursor.execute("SELECT password FROM user WHERE email=%s OR username=%s", (identifier, identifier)) # make it so the user can put either username or email to log in
+        result = supabase.table("user") \
+            .select("password") \
+            .or_(f"email.eq.{identifier},username.eq.{identifier}") \
+            .execute()
+        
+        if not result.data:      # if email found in databse it will be true dont have then continue
+            return "Email or Username not found, you may need to register" # make it so the user can put either username or email to log in
+                     
+        password_in_db = result.data[0]["password"]
 
-        result = cursor.fetchone()
-        
-        if not result: 
-            return "Email or Username not found, You may need to register your account"
-        
         hashed_password = hash_password(password)
-        
-        password_in_db = result[0]
 
         if password_in_db != hashed_password:
             return "Wrong password, try again"
+        return "User have successfully log in"
         
     except Exception as e:
         return f"Database Error: {e}"
-        
-    finally:
-        cursor.close()
-        conn.close()
 
     return "User have successfully log in"
