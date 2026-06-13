@@ -3,58 +3,34 @@ ZEST_PROJECT/
 ├── frontend/ (Muhd Farhan)
 │   ├── ui/
 │   │   ├── login.py     Y 
-│   │   ├── register.py
-│   │   ├── profile.py
+│   │   ├── register.py  Y
+│   │   ├── profile.py   Y
 │   │   ├── chat.py      Y
 │   │   └── home.py      Y
 │   │
 │   ├── assets/
-│   │   ├── images/
-│   │   └── styles/
+│   │   └── images/
+│   │   
 │   │
 │   └── main.py
 │
 ├── backend/ (Balaa - Leader)
-│   ├── auth.py         Y
-│   ├── matching.py
-│   ├── posts.py
+│   ├── auth.py          Y
+│   ├── matching.py      Y
+│   ├── posts.py         
 │   ├── chat_logic.py    Y
 │   ├── profile.py       Y
-│   └── location.py
+│   └── location.py      
 │
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-├── database/ (Jaswin Rao)
-│   ├── connection.py
-│   ├── init_tables.sql
-│   ├── users_table.sql
-│   ├── messages_table.sql
-│   └── posts_table.sql
-=======
->>>>>>> 1c6d9b9 ( Fresh clean commit: Supabase setup complete)
 ├── database/ (Jasswin Rao)
 │   ├── connection.py      Y
 │   ├── init_tables.sql    Y
 │   ├── users_table.sql    Y 
 │   ├── messages_table.sql Y
 │   └── posts_table.sql    Y
-<<<<<<< HEAD
-=======
->>>>>>> main
->>>>>>> 1c6d9b9 ( Fresh clean commit: Supabase setup complete)
 │   
-│
-├── config/
-│   ├── settings.py
-│   └── secrets.env
-│
-├── docs/
-│   ├── system_design.md
-│   └── api_flow.md
-│
 └── requirements.txt
 
 Frontend: QtPy
 Backend: Python
-Cloud DB: Aiven PostgreSQL
+Cloud DB: Supabase
