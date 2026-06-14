@@ -67,10 +67,17 @@ def register_new_user(full_name, username, email, password, confirm_password):
             "password" : hashed_password
         }).execute()
 
-        return f"User have successfully registered. ID = {user_id}."
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "username": username
+        }
 
     except Exception as e:
-        return f"Database Error: {e}"
+        return {
+        "status": "error",
+        "message": str(e)
+    }
 
 
 

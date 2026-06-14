@@ -1,5 +1,44 @@
-from Database.connection import connection
-# from datetime import datetime   might be in use later or not 
+from Database.db_connect import supabase
+from datetime import datetime
+
+def save_additional_info(user_id, gender, birthday_str, course, education, state, city):
+
+    try:        
+        # put the value in if the sender_id receiver_id and message are acording to rule given
+        if not all([user_id, gender, birthday_str, course, education, state, city]):
+            return "All fields must be filled"
+        
+        if gender not in ["Male", "Female"]:
+            return "Please select a valid gender"
+        
+        try:
+            birth_date = datetime.strptime(birthday_str, "%Y-%m-%d")
+            current_year = datetime.now().year
+            calculated_age = current_year - birth_date.year
+        except Exception:
+            calculated_age = None
+
+        # Update Database
+        response = supabase.table("users").update({
+            "gender"    : gender,
+            "age"       : calculated_age,
+            "birthday"  : birthday_str,
+            "course"    : course,
+            "education" : education,
+            "state"     : state,
+            "city"      : city
+        }).eq("user_id", user_id).execute()
+
+        print(response.data)
+
+        # optional safety check
+        if not response.data:
+            return "Failed to update user information"
+
+        return "Additional information saved successfully"
+
+    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
+        return f"Database Error: {e}"
 
 # getting the information of the users in profile to show
 def get_profile(user_id):
