@@ -9,12 +9,12 @@ def save_additional_info(user_id, gender, birthday_str, course, education, state
             return "All fields must be filled"
         
         if gender not in ["Male", "Female"]:
-            return "Please select a valid gender"
+            return "Please select a valid gender"     
         
         try:
             birth_date = datetime.strptime(birthday_str, "%Y-%m-%d")
             current_year = datetime.now().year
-            calculated_age = current_year - birth_date.year
+            calculated_age = current_year - birth_date.year      #  this year minus with birth year is the age
         except Exception:
             calculated_age = None
 

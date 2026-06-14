@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import (
     QComboBox, QDateEdit, QMessageBox
 )
 from PyQt5.QtCore import Qt, QDate
-# Impord the backend code from the file
-from backend.profile import save_additional_info
+from backend.profile import save_additional_info          # Import the backend code from the file
 import sys
 
 class AdditionalInfoPage(QWidget):
