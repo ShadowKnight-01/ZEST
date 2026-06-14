@@ -15,7 +15,10 @@ key: str = os.environ.get("SUPABASE_KEY")
 
 # Safety check: ensure the keys are actually loading
 if not url or not key:
-    raise ValueError(f"Missing SUPABASE_URL or SUPABASE_KEY\nChecked: {env_path}")
+    raise ValueError(
+        f"Error: Missing SUPABASE_URL or SUPABASE_KEY in connection.env!\n"
+        f"Checked path: {env_path}"
+    )
 
 # 4. Initialize the live connection client
 supabase: Client = create_client(url, key)

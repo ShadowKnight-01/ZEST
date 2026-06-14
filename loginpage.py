@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox
 # Impord the backend code from the file
 from backend.auth import log_in_user
 from register import RegisterPage
@@ -173,7 +174,19 @@ class LoginPage(QWidget):
 
         result = log_in_user(identifier, password)
 
-        print(result)
+        if result == "User have successfully log in":
+            QMessageBox.information(
+                self,
+                "Login Successful",
+                result
+            )
+
+        else:
+            QMessageBox.warning(
+                self,
+                "Login Failed",
+                result
+            )
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

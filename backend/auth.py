@@ -1,5 +1,4 @@
 from Database.db_connect import supabase
-from datetime import datetime
 import re               # Python RegEx
 import hashlib          # extra security for password
 import uuid
@@ -21,7 +20,7 @@ def valid_username(username):
 def hash_password(password):
     return hashlib.blake2b(password.encode()).hexdigest()
 
-# Register new user on app
+# Register new users on app
 def register_new_user(full_name, username, email, password, confirm_password):
     
     if not valid_email(email):
@@ -40,28 +39,28 @@ def register_new_user(full_name, username, email, password, confirm_password):
         return "Your password do not contain lower case alphabet"
     if not re.findall("[A-Z]", password):
         return "Your password do not contain upper case alphabet"
-    if not re.findall("[\d]", password):
+    if not re.findall(r"[\d]", password):
         return "Your password do not contain numbers"
     if len(password) < 8:
         return "Your password must contain at least 8 characters"
     
     try:
         # check if email is a duplicate
-        email_check = supabase.table("user").select("id").eq("email", email).execute()
+        email_check = supabase.table("users").select("id").eq("email", email).execute()
         if email_check.data:      # if email found in databse it will be true dont have then continue
             return "Email already exists"
 
         # check if username is a duplicate
-        username_check = supabase.table("user").select("id").eq("username", username).execute()
+        username_check = supabase.table("users").select("id").eq("username", username).execute()
         if username_check.data:   # if username found in databse it will be true dont have then continue
             return "Username already exists"
         
         hashed_password = hash_password(password)
-        user_id = str(uuid.uuid4())    # database for unique user id
+        user_id = str(uuid.uuid4())    # database for unique users id
         
         # put the value in if the name email password are acording to rule given
-        supabase.table("user").insert({
-            "user_id"  : user_id,    # database for unique user id
+        supabase.table("users").insert({
+            "user_id"  : user_id,    # database for unique users id
             "full_name": full_name,
             "username" : username,
             "email"    : email,
@@ -79,13 +78,13 @@ def register_new_user(full_name, username, email, password, confirm_password):
 def log_in_user(identifier, password):
     try:
         # check if there are email saved or not if yes check the passwordd to as if is it same or not
-        result = supabase.table("user") \
+        result = supabase.table("users") \
             .select("password") \
             .or_(f"email.eq.{identifier},username.eq.{identifier}") \
             .execute()
         
         if not result.data:      # if email found in databse it will be true dont have then continue
-            return "Email or Username not found, you may need to register" # make it so the user can put either username or email to log in
+            return "Email or Username not found, you may need to register" # make it so the users can put either username or email to log in
                      
         password_in_db = result.data[0]["password"]
 
@@ -97,5 +96,3 @@ def log_in_user(identifier, password):
         
     except Exception as e:
         return f"Database Error: {e}"
-
-    return "User have successfully log in"

@@ -21,7 +21,7 @@ CREATE TABLE users (
     state VARCHAR(50),
     city VARCHAR(50),
     profile_pic VARCHAR(255),
-    user_or_admin VARCHAR(20) DEFAULT 'user' CHECK (user_or_admin IN ('user', 'admin')), -- Postgres alternative to ENUM inline
+    user_or_admin VARCHAR(20) DEFAULT 'users' CHECK (user_or_admin IN ('users', 'admin')), -- Postgres alternative to ENUM inline
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (user_id), -- Keeps user_id as your primary key

@@ -7,8 +7,8 @@ def find_matches(user_id):
     cursor = conn.cursor()
 
     try:
-        # get information on interest from the user
-        cursor.execute("SELECT interests FROM user WHERE user_id = %s", (user_id,)) # so the interest and the location can be get from the user
+        # get information on interest from the users
+        cursor.execute("SELECT interests FROM users WHERE user_id = %s", (user_id,)) # so the interest and the location can be get from the users
         result = cursor.fetchone()
 
         if not result or not result[0]: 
@@ -19,7 +19,7 @@ def find_matches(user_id):
             for i in result[0].split(",")  # split by comma 
         }
 
-        cursor.execute("SELECT user_id, username, interests FROM user WHERE user_id != %s", (user_id,))   # find all other people other then ourself
+        cursor.execute("SELECT user_id, username, interests FROM users WHERE user_id != %s", (user_id,))   # find all other people other then ourself
         results = cursor.fetchall()
 
         matches = []

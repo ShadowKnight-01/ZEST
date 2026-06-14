@@ -2,7 +2,10 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QFrame,
     QLabel, QLineEdit, QPushButton
 )
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox 
+# Impord the backend code from the file
+from backend.auth import register_new_user
 import sys
 
 class RegisterPage(QWidget):
@@ -174,13 +177,30 @@ class RegisterPage(QWidget):
         self.inputPassword.returnPressed.connect(
             self.btnRegister.click
         )
-
+        
+    # REGISTER FUNCTION
     def register(self):
-        fullname = self.inputFullName.text()
+        full_name = self.inputFullName.text()
         username = self.inputUsername.text()
         email = self.inputEmail.text()
         password = self.inputPassword.text()
         confirm_password = self.inputConfirmPassword.text()
+
+        result = register_new_user(full_name, username, email, password, confirm_password)
+
+        if "successfully registered" in result:
+            QMessageBox.information(
+                self,
+                "Registration Successful",
+                result
+            )
+
+        else:
+            QMessageBox.warning(
+                self,
+                "Registration Failed",
+                result
+            )
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
