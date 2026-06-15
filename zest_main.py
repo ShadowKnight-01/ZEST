@@ -36,20 +36,22 @@ class Ui_MainWindow(object):
         self.label_logo.setObjectName("label_logo")     
         self.verticalLayout_4.addWidget(self.label_logo)
 
-
+        self.btn_mainpage = QtWidgets.QPushButton(self.sidebar)
+        self.btn_mainpage.setObjectName("btn_mainpage")
+        self.verticalLayout_4.addWidget(self.btn_mainpage)
 
         self.btn_explore = QtWidgets.QPushButton(self.sidebar)
         self.btn_explore.setObjectName("btn_explore")
         self.verticalLayout_4.addWidget(self.btn_explore)
 
-
-
         self.btn_message = QtWidgets.QPushButton(self.sidebar)
         self.btn_message.setObjectName("btn_message")
         self.verticalLayout_4.addWidget(self.btn_message)
+
         self.btn_profile = QtWidgets.QPushButton(self.sidebar)
         self.btn_profile.setObjectName("btn_profile")
         self.verticalLayout_4.addWidget(self.btn_profile)
+
         spacerItem = QtWidgets.QSpacerItem(20, 376, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_4.addItem(spacerItem)
         self.horizontalLayout.addWidget(self.sidebar)
@@ -248,11 +250,12 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_logo.setText(_translate("MainWindow", "ZEST"))
-       #self.btn_feed.setText(_translate("MainWindow", "Feed"))
+
+        self.btn_mainpage.setText(_translate("MainWindow", "Main page"))
         self.btn_explore.setText(_translate("MainWindow", "Explore"))
-        #self.btn_videos.setText(_translate("MainWindow", "Videos"))
         self.btn_message.setText(_translate("MainWindow", "Message"))
         self.btn_profile.setText(_translate("MainWindow", "Profile"))
+        
         self.label.setText(_translate("MainWindow", "Global Feed"))
         self.label_username.setText(_translate("MainWindow", "mrfarhan"))
         self.label_text.setText(_translate("MainWindow", "\"This is my first post on Zest!\""))

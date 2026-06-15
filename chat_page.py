@@ -9,9 +9,9 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from backend import chat_logic            # import chatlogic.py function to ui
+#from backend import chat_logic            # import chatlogic.py function to ui
 
-class Ui_Form(object):
+class Ui_ChatForm(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(819, 600)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
-    ui = Ui_Form()
+    ui = Ui_ChatForm()
     ui.setupUi(Form)
     Form.show()
     sys.exit(app.exec_())

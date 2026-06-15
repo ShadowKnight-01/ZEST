@@ -1,41 +1,37 @@
-
+from Database.db_connect import supabase
 from datetime import datetime
 
 # saving mesage that sended
 def send_message(sender_id, receiver_id, message):
 
-    conn = connection()
-    cursor = conn.cursor()
-
     try:         
-        date = datetime.now().strftime("%d-%m-%Y")
-        time = datetime.now().strftime("%I:%M %p")
+        date = datetime.now().strftime("%d-%m-%Y")  # dd-mm-yyyy
+        time = datetime.now().strftime("%I:%M %p")  # %p is AM or PM -> Hour : Minute AM/PM
         
         # put the value in if the sender_id receiver_id and message are acording to rule given
-        cursor.execute("INSERT INTO messages (sender_id, receiver_id, message, date, time) VALUES (%s, %s, %s, %s, %s)", (sender_id, receiver_id, message, date, time))
-        conn.commit()
+        message_memory = supabase.table("messages").insert({
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "message": message,
+            "date": date,
+            "time": time
+            }).execute()
+        
+        if message_memory.data:
+            return "Message sent successfully"
+        else:
+            return "Failed to send message"
+
     except Exception as e:
-        conn.rollback()
         return f"Database Error: {e}"
-    finally:
-        # close curser and conection
-        cursor.close()
-        conn.close()
-    return "message sended succesfully"
 
 # define of getting and sendding message
 def get_message(userid1, userid2):
 
-    conn = connection()
-    cursor = conn.cursor()
-
     try:        
         # put the value in if the sender_id receiver_id and message are acording to rule given
-        cursor.execute("SELECT * FROM messages WHERE (sender_id=%s AND receiver_id=%s) OR (sender_id=%s AND receiver_id=%s)", (userid1, userid2, userid2, userid1))
-        return cursor.fetchall()
+        message_check = supabase.table("messages").select("*").or_(f"and(sender_id.eq.{userid1},receiver_id.eq.{userid2}),and(sender_id.eq.{userid2},receiver_id.eq.{userid1})").execute()
+        return message_check.data
+ 
     except Exception as e:
         return f"Database Error: {e}"
-    finally:
-        # close curser and conection
-        cursor.close()
-        conn.close()

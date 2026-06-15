@@ -46,12 +46,12 @@ def register_new_user(full_name, username, email, password, confirm_password):
     
     try:
         # check if email is a duplicate
-        email_check = supabase.table("users").select("id").eq("email", email).execute()
+        email_check = supabase.table("users").select("email").eq("email", email).execute()
         if email_check.data:      # if email found in databse it will be true dont have then continue
             return "Email already exists"
 
         # check if username is a duplicate
-        username_check = supabase.table("users").select("id").eq("username", username).execute()
+        username_check = supabase.table("users").select("username").eq("username", username).execute()
         if username_check.data:   # if username found in databse it will be true dont have then continue
             return "Username already exists"
         

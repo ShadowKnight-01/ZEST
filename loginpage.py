@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QFrame,
-    QLabel, QLineEdit, QPushButton
+    QLabel, QLineEdit, QPushButton, QMessageBox
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMessageBox
 # Impord the backend code from the file
 from backend.auth import log_in_user
 from register import RegisterPage
