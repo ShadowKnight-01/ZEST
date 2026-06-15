@@ -29,8 +29,6 @@ def save_additional_info(user_id, gender, birthday_str, course, education, state
             "city"      : city
         }).eq("user_id", user_id).execute()
 
-        print(response.data)
-
         # optional safety check
         if not response.data:
             return "Failed to update user information"

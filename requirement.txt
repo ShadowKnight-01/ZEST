@@ -34,3 +34,11 @@ ZEST_PROJECT/
 Frontend: QtPy
 Backend: Python
 Cloud DB: Supabase
+
+
+register -> additional_information -> *Interest* -> Login -> Zest_main -> chat_page        
+                                                                       -> pfpinterface         
+                                                                       -> *explore friend*  
+Login -> Zest_main -> chat_page        
+                   -> pfpinterface         
+                   -> *explore friend*  

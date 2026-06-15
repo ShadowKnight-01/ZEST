@@ -1,4 +1,4 @@
-from Database.connection import connection
+
 from datetime import datetime
 
 # saving mesage that sended
