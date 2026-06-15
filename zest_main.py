@@ -33,20 +33,20 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSpacing(5)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.label_logo = QtWidgets.QLabel(self.sidebar)
-        self.label_logo.setObjectName("label_logo")
+        self.label_logo.setObjectName("label_logo")     
         self.verticalLayout_4.addWidget(self.label_logo)
-        self.btn_feed = QtWidgets.QPushButton(self.sidebar)
-        self.btn_feed.setObjectName("btn_feed")
-        self.verticalLayout_4.addWidget(self.btn_feed)
+
+
+
         self.btn_explore = QtWidgets.QPushButton(self.sidebar)
         self.btn_explore.setObjectName("btn_explore")
         self.verticalLayout_4.addWidget(self.btn_explore)
-        self.btn_videos = QtWidgets.QPushButton(self.sidebar)
-        self.btn_videos.setObjectName("btn_videos")
-        self.verticalLayout_4.addWidget(self.btn_videos)
-        self.btn_groups = QtWidgets.QPushButton(self.sidebar)
-        self.btn_groups.setObjectName("btn_groups")
-        self.verticalLayout_4.addWidget(self.btn_groups)
+
+
+
+        self.btn_message = QtWidgets.QPushButton(self.sidebar)
+        self.btn_message.setObjectName("btn_message")
+        self.verticalLayout_4.addWidget(self.btn_message)
         self.btn_profile = QtWidgets.QPushButton(self.sidebar)
         self.btn_profile.setObjectName("btn_profile")
         self.verticalLayout_4.addWidget(self.btn_profile)
@@ -248,10 +248,10 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_logo.setText(_translate("MainWindow", "ZEST"))
-        self.btn_feed.setText(_translate("MainWindow", "Feed"))
+       #self.btn_feed.setText(_translate("MainWindow", "Feed"))
         self.btn_explore.setText(_translate("MainWindow", "Explore"))
-        self.btn_videos.setText(_translate("MainWindow", "Videos"))
-        self.btn_groups.setText(_translate("MainWindow", "Groups"))
+        #self.btn_videos.setText(_translate("MainWindow", "Videos"))
+        self.btn_message.setText(_translate("MainWindow", "Message"))
         self.btn_profile.setText(_translate("MainWindow", "Profile"))
         self.label.setText(_translate("MainWindow", "Global Feed"))
         self.label_username.setText(_translate("MainWindow", "mrfarhan"))

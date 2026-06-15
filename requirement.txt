@@ -3,43 +3,42 @@ ZEST_PROJECT/
 ├── frontend/ (Muhd Farhan)
 │   ├── ui/
 │   │   ├── login.py     Y 
-│   │   ├── register.py
-│   │   ├── profile.py
+│   │   ├── register.py  Y
+│   │   ├── profile.py   Y
 │   │   ├── chat.py      Y
 │   │   └── home.py      Y
 │   │
 │   ├── assets/
-│   │   ├── images/
-│   │   └── styles/
+│   │   └── images/
+│   │   
 │   │
 │   └── main.py
 │
 ├── backend/ (Balaa - Leader)
-│   ├── auth.py         Y
-│   ├── matching.py
-│   ├── posts.py
+│   ├── auth.py          Y
+│   ├── matching.py      Y
+│   ├── posts.py         
 │   ├── chat_logic.py    Y
-│   ├── profile.py
-│   └── location.py
+│   ├── profile.py       Y
+│   └── location.py      
 │
 ├── database/ (Jasswin Rao)
-│   ├── connection.py
-│   ├── init_tables.sql
-│   ├── users_table.sql
-│   ├── messages_table.sql
-│   └── posts_table.sql
+│   ├── connection.py      Y
+│   ├── init_tables.sql    Y
+│   ├── users_table.sql    Y 
+│   ├── messages_table.sql Y
+│   └── posts_table.sql    Y
 │   
-│
-├── config/
-│   ├── settings.py
-│   └── secrets.env
-│
-├── docs/
-│   ├── system_design.md
-│   └── api_flow.md
-│
 └── requirements.txt
 
 Frontend: QtPy
 Backend: Python
-Cloud DB: Aiven PostgreSQL
+Cloud DB: Supabase
+
+
+register -> additional_information -> *Interest* -> Login -> Zest_main -> chat_page        
+                                                                       -> pfpinterface         
+                                                                       -> *explore friend*  
+Login -> Zest_main -> chat_page        
+                   -> pfpinterface         
+                   -> *explore friend*  
