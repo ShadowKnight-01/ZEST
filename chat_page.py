@@ -9,30 +9,125 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-#from backend import chat_logic            # import chatlogic.py function to ui
+from backend.session import SESSION
+from backend.chat_logic import (send_message, get_message, load_chat_users)
+import sys
+
 
 class Ui_ChatForm(object):
+    def load_messages(self):
+        if not hasattr(self, "receiver_id"):
+            return
+            
+        from backend.session import SESSION
+        current_user = SESSION.get("user_id")
+        
+        if not current_user:
+            return
+
+        messages = get_message(current_user, self.receiver_id)
+        self.list_messages.clear()
+        for m in messages:
+            # --- FIX: Corrected bracket placement syntax format ---
+            self.list_messages.addItem(
+                f"{m['sender_id']}: {m['message']}"
+            )
+
+    def open_chat(self, item):
+        self.receiver_id = item.text()
+        self.label_chat_name.setText(f"Chat with {self.receiver_id}")
+        self.load_messages()
+
+    def filter_users(self, text):
+        for i in range (self.list_friends.count()):
+            item = self.list_friends.item(i)
+            item.setHidden(text.lower() not in item.text().lower())
+
+    def send_messages(self):
+        text = self.input_message.text().strip()  
+        if not text or not hasattr(self, "receiver_id"):
+            return
+        success = send_message(self.current_user, self.receiver_id, text)
+        if success:
+            self.input_message.clear()
+            self.load_messages()
+
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(819, 600)
-        Form.setStyleSheet("QWidget { background-color: #F0F4FA; font-family: \"Segoe UI\", sans-serif; }\n"
-"QListWidget#list_friends { background-color: #FFFFFF; border-radius: 10px; border: none; padding: 10px; font-size: 14px; }\n"
-"QListWidget#list_messages { background-color: #E2EAF5; border-radius: 10px; border: none; padding: 15px; font-size: 14px; }\n"
-"QLineEdit { background-color: #FFFFFF; border: 1px solid #D1D9E6; border-radius: 15px; padding: 10px; font-size: 14px; }\n"
-"QLineEdit:focus { border: 1px solid #1877F2; }\n"
-"QPushButton#btn_send { background-color: #1877F2; color: white; border-radius: 15px; padding: 10px 20px; font-weight: bold; font-size: 14px; }\n"
-"QPushButton#btn_send:hover { background-color: #166FE5; }\n"
-"QLabel#label_chat_name { font-size: 16px; font-weight: bold; padding: 10px; background-color: white; border-radius: 10px; }")
+        Form.resize(820, 600)
+        Form.setStyleSheet("""
+        QWidget {
+            background-color: #F0F4FA;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        QListWidget#list_friends {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        QListWidget#list_messages {
+            background-color: #E2EAF5;
+            border-radius: 10px;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        QLineEdit {
+            background-color: #FFFFFF;
+            border: 1px solid #D1D9E6;
+            border-radius: 15px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        QLineEdit:focus {
+            border: 1px solid #1877F2;
+        }
+
+        QPushButton#btn_send {
+            background-color: #1877F2;
+            color: white;
+            border-radius: 15px;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        QPushButton#btn_send:hover {
+            background-color: #166FE5;
+        }
+
+        QLabel#label_chat_name {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+        }
+        """)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget = QtWidgets.QWidget(Form)
         self.widget.setObjectName("widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setObjectName("verticalLayout")
+        
         self.input_search = QtWidgets.QLineEdit(self.widget)
+
+        self.input_search.textChanged.connect(self.filter_users)
         self.input_search.setObjectName("input_search")
         self.verticalLayout.addWidget(self.input_search)
+
         self.list_friends = QtWidgets.QListWidget(self.widget)
+
+        self.current_user = "user_id_here"
+        self.receiver_id = None
+        
         self.list_friends.setObjectName("list_friends")
         self.verticalLayout.addWidget(self.list_friends)
         self.horizontalLayout.addWidget(self.widget)
@@ -53,6 +148,7 @@ class Ui_ChatForm(object):
         self.horizontalLayout_3.addWidget(self.input_message)
         self.btn_send = QtWidgets.QPushButton(self.widget_2)
         self.btn_send.setObjectName("btn_send")
+        self.btn_send.clicked.connect(self.send_messages)
         self.horizontalLayout_3.addWidget(self.btn_send)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout.addWidget(self.widget_2)
@@ -63,8 +159,9 @@ class Ui_ChatForm(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_chat_name.setText(_translate("Form", "TextLabel"))
+        self.list_friends.itemClicked.connect(self.open_chat)
         self.btn_send.setText(_translate("Form", "PushButton"))
+        self.input_search.setPlaceholderText("Search users...")
 
 
 if __name__ == "__main__":

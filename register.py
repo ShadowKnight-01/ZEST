@@ -5,14 +5,12 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 # Impord the backend code from the file
 from backend.auth import register_new_user
+from backend.session import SESSION
 import sys
 
 class RegisterPage(QWidget):
     def open_login(self):
-        from loginpage import LoginPage
-        self.login_window = LoginPage()
-        self.login_window.show()
-        self.close()
+        self.parent().setCurrentIndex(0)
 
     def __init__(self):
         super().__init__()
@@ -176,7 +174,9 @@ class RegisterPage(QWidget):
         self.inputPassword.returnPressed.connect(
             self.btnRegister.click
         )
-   
+
+    def open_register(self):
+        self.parent().setCurrentIndex(0)
         
     # REGISTER FUNCTION
     def register(self):
@@ -189,29 +189,22 @@ class RegisterPage(QWidget):
         result = register_new_user(full_name, username, email, password, confirm_password)
 
         if isinstance(result, dict) and result.get("status") == "success":
-            QMessageBox.information(
-                self,
-                "Registration Successful",
-                "Account created successfully!"
-            )
+            QMessageBox.information(self, "Registration Successful", "Account created successfully!")
 
-            from additional_information import AdditionalInfoPage
+            SESSION["user_id"] = result["user_id"]
+            SESSION["username"] = result["username"]
+            SESSION["full_name"] = full_name
 
-            self.next_page = AdditionalInfoPage(
-                user_id=result["user_id"],
-                username=result["username"],
-                full_name=full_name
-            )
+            main_window = self.window()
+            if hasattr(main_window, "additional_page"):
+                main_window.additional_page.user_id = result["user_id"]
+                main_window.additional_page.username = result["username"]
+                main_window.additional_page.full_name = full_name
 
-            self.next_page.show()
-            self.close()
-
+            # Route straight to Additional Profile Information Collection Phase
+            self.parent().setCurrentIndex(2)
         else:
-            QMessageBox.warning(
-                self,
-                "Registration Failed",
-                str(result)
-            )
+            QMessageBox.warning(self, "Registration Failed", str(result))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -6,13 +6,12 @@ from PyQt5.QtCore import Qt
 # Impord the backend code from the file
 from backend.auth import log_in_user
 from register import RegisterPage
+from backend.session import SESSION
 import sys
 
 class LoginPage(QWidget):
     def open_register(self):
-        self.register_window = RegisterPage()
-        self.register_window.show()
-        self.close()
+        self.parent().setCurrentIndex(1)
 
     def __init__(self):
         super().__init__()
@@ -168,24 +167,22 @@ class LoginPage(QWidget):
 
     # LOGIN FUNCTION 
     def login(self):
-        identifier = self.inputUsername.text().strip()    # change input inputUsername to input identifier
+        identifier = self.inputUsername.text().strip()    
         password   = self.inputPass.text() 
 
         result = log_in_user(identifier, password)
 
-        if result == "User have successfully log in":
-            QMessageBox.information(
-                self,
-                "Login Successful",
-                result
-            )
+        if isinstance(result, dict):
+            SESSION["user_id"] = result["user_id"]
+            SESSION["username"] = result["username"]
+            SESSION["full_name"] = result["full_name"]
 
+            QMessageBox.information(self, "Login Successful", "Welcome Back!")
+            
+            # Direct access redirection straight to Dashboard Home Layout Deck
+            self.parent().setCurrentIndex(4)
         else:
-            QMessageBox.warning(
-                self,
-                "Login Failed",
-                result
-            )
+            QMessageBox.warning(self, "Login Failed", str(result))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -1,6 +1,27 @@
 from Database.db_connect import supabase
 from datetime import datetime
 
+# getting the information of the users in profile to show
+def get_profile(user_id):
+    try:        
+        # put the value in if the sender_id receiver_id and message are acording to rule given
+        response = supabase.table("users").select("user_id, full_name, username, email, gender, age, course, education, user_or_admin").eq("user_id", user_id).execute()
+        if response.data:
+            return response.data[0]
+        return None
+    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
+        return f"Database Error: {e}"
+
+def update_profile(user_id, name):
+
+    try:        
+        # put the value in if the sender_id receiver_id and message are acording to rule given
+        responce = supabase.table("users").update({"full_name": name}).eq("user_id", user_id).execute()
+        return "Profile updated"
+    except Exception as e:
+        return f"Database Error: {e}"
+
+        
 def save_additional_info(user_id, gender, birthday_str, course, education, state, city):
 
     try:        
@@ -31,44 +52,36 @@ def save_additional_info(user_id, gender, birthday_str, course, education, state
 
         # optional safety check
         if not response.data:
-            return "Failed to update user information"
+            return {
+                "status": "error",
+                "message": "Failed to update user information"
+            }
 
-        return "Additional information saved successfully"
-
-    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
-        return f"Database Error: {e}"
-
-# getting the information of the users in profile to show
-def get_profile(user_id):
-
-    conn = connection()
-    cursor = conn.cursor()
-
-    try:        
-        # put the value in if the sender_id receiver_id and message are acording to rule given
-        cursor.execute("SELECT user_id, full_name, username, email, gender, age, course, education, profile_pic, user_or_admin FROM users WHERE id=%s", (user_id,))
-        return cursor.fetchone()
-    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
-        return f"Database Error: {e}"
-    finally:
-        # close curser and conection
-        cursor.close()
-        conn.close()
-
-def update_profile(user_id, name):
-
-    conn = connection()
-    cursor = conn.cursor()
-
-    try:        
-        # put the value in if the sender_id receiver_id and message are acording to rule given
-        cursor.execute("UPDATE users SET name=%s WHERE id=%s", (name, user_id))
-        conn.commit()
-        return "Profile updated"
-    except Exception as e:
-        return f"Database Error: {e}"
-    finally:
-        # close curser and conection
-        cursor.close()
-        conn.close()
+        return {
+            "status": "success",
+            "user_id": user_id
+        }
         
+
+    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
+        return f"Database Error: {e}"
+    
+def save_interest(user_id, interest):
+    try:        
+        # put the value in if the sender_id receiver_id and message are acording to rule given
+        if not all([user_id, interest]):
+            return "All fields must be filled"
+        
+        # Update Database
+        response = supabase.table("users").update({
+            "interests"  : interest,
+        }).eq("user_id", user_id).execute()
+
+        # optional safety check
+        if not response.data:
+            return "Failed to update interest"
+
+        return "interest saved successfully"
+
+    except Exception as e:    # IF  SQL crashes wrong table, collumn of conn fail it return error message
+        return f"Database Error: {e}"

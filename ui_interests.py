@@ -9,11 +9,19 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from backend.profile import save_interest
+from PyQt5.QtWidgets import QMessageBox
 
 class Ui_MainWindow(object):
+    # Login switching place
+    def open_login(self):
+        from loginpage import LoginPage
+        self.login_window = LoginPage()
+        self.login_window.show()
+        self.close()
+
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("Interest")
         MainWindow.resize(800, 600)
         MainWindow.setStyleSheet("/* Main Window Background */\n"
 "QWidget#centralwidget {\n"
@@ -124,6 +132,62 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.btn_submit.clicked.connect(self.submit_interest)
+
+    def submit_interest(self):
+        # Get selected interests
+        interests = []
+
+        checkbox_list = [
+            self.chk_games,
+            self.chk_music,
+            self.chk_tech,
+            self.chk_cooking,
+            self.chk_art,
+            self.chk_books,
+            self.chk_sports,
+            self.chk_traveling,
+            self.chk_movies,
+            self.chk_photography
+        ]
+
+        for checkbox in checkbox_list:
+            if checkbox.isChecked():
+                interests.append(checkbox.text())
+
+        if not interests:
+            QMessageBox.warning(
+                None,
+                "No Interest Selected",
+                "Please select at least one interest."
+            )
+            return
+
+        # Convert list to string
+        interest_text = ", ".join(interests)
+
+        # Get logged-in user id
+        user_id = 1   # CHANGE THIS TO YOUR REAL LOGIN USER ID
+
+        result = save_interest(user_id, interest_text)
+
+        if "successfully" in str(result).lower():
+
+            QMessageBox.information(
+                self,
+                "Success",
+                "Your interest has been saved successfully!"
+            )
+
+            self.open_login()
+
+        else:
+
+            QMessageBox.warning(
+                self,
+                "Failed",
+                str(result)
+            )
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -140,6 +204,9 @@ class Ui_MainWindow(object):
         self.chk_movies.setText(_translate("MainWindow", "Watching Movies"))
         self.chk_photography.setText(_translate("MainWindow", "Photography"))
         self.btn_submit.setText(_translate("MainWindow", "Submit"))
+
+
+
 
 
 if __name__ == "__main__":

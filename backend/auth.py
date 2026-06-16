@@ -75,9 +75,9 @@ def register_new_user(full_name, username, email, password, confirm_password):
 
     except Exception as e:
         return {
-        "status": "error",
-        "message": str(e)
-    }
+            "status": "error",
+            "message": str(e)
+        }
 
 
 
@@ -86,7 +86,7 @@ def log_in_user(identifier, password):
     try:
         # check if there are email saved or not if yes check the passwordd to as if is it same or not
         result = supabase.table("users") \
-            .select("password") \
+            .select("user_id, username, full_name, password") \
             .or_(f"email.eq.{identifier},username.eq.{identifier}") \
             .execute()
         
@@ -99,7 +99,12 @@ def log_in_user(identifier, password):
 
         if password_in_db != hashed_password:
             return "Wrong password, try again"
-        return "User have successfully log in"
+        return {
+            "status"   : "success",
+            "user_id"  : result.data[0]["user_id"],
+            "username" : result.data[0]["username"],
+            "full_name": result.data[0]["full_name"]
+        }
         
     except Exception as e:
         return f"Database Error: {e}"

@@ -4,19 +4,18 @@ from PyQt5.QtWidgets import (
     QComboBox, QDateEdit, QMessageBox
 )
 from PyQt5.QtCore import Qt, QDate
+from backend.session import SESSION
 from backend.profile import save_additional_info          # Import the backend code from the file
 import sys
 
 class AdditionalInfoPage(QWidget):
 
-    # Login switching place
-    def open_login(self):
-        from loginpage import LoginPage
-        self.login_window = LoginPage()
-        self.login_window.show()
-        self.close()
-
-    def __init__(self, user_id, username, full_name=""):
+    def __init__(
+        self, 
+        user_id=None, 
+        username="", 
+        full_name=""
+    ):
         super().__init__()
 
         self.user_id = user_id
@@ -206,22 +205,33 @@ class AdditionalInfoPage(QWidget):
         if gender == "Select Gender" or not course or not education or not state or not city:
             QMessageBox.warning(self, "Validation Error", "Please fill in all required fields.")
             return
+        
+        if not self.user_id:
+            from backend.session import SESSION
+            self.user_id = SESSION.get("user_id")
 
+        # Ensure we are using the freshly updated runtime session token tracking attribute
         result = save_additional_info(self.user_id, gender, birthday, course, education, state, city)
 
-        if "successfully" in str(result).lower():
+        if isinstance(result, dict) and result.get("status") == "success":
             QMessageBox.information(
                 self,
                 "Success",
                 "Your information has been saved successfully!"
             )
 
-            self.open_login()
+            # --- FIX: Dynamically hand over the user_id context to the Interests Page ---
+            main_window = self.window()
+            if hasattr(main_window, "interest_page"):
+                main_window.interest_page.user_id = self.user_id
 
+            # Move to Interests Checklist Screen (Index 3)
+            self.parent().setCurrentIndex(3)
         else:
+            # FIX: Swapped incorrect box title text assignment string crash
             QMessageBox.warning(
                 self,
-                "Please fill in all required fields.",
+                "Error Saving Info",
                 str(result)
             )
 

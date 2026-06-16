@@ -1,88 +1,101 @@
 import sys
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 
-# Import your generated UI classes
+# Import your beautiful custom standalone UI views
+from loginpage import LoginPage
+from register import RegisterPage
+from additional_information import AdditionalInfoPage
+from interest_page import InterestPage
+
+# Import system layout shells
 from zest_main import Ui_MainWindow
 from chat_page import Ui_ChatForm
 from pfpinterface import Ui_ProfileForm
-#from ** import **    #for the explore page
 
-
-# Step 1: Wrap your secondary forms into proper standalone custom Widgets
-class ChatPage(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = Ui_ChatForm()
-        self.ui.setupUi(self)
-
-
-class ProfilePage(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = Ui_ProfileForm()
-        self.ui.setupUi(self)
-
-class Explore(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-       # self.ui = Ui_searchForm()
-        self.ui.setupUi(self)
-
-
-# Step 2: Create the controller that orchestrates the switching
-class ZestApp(QtWidgets.QMainWindow):
+class ZestAppMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.setWindowTitle("ZEST Application Suite")
+        self.resize(1200, 800)
 
-        # 1. Create a QStackedWidget instance
-        self.stacked_widget = QtWidgets.QStackedWidget(self.ui.centralwidget)
-        self.stacked_widget.setObjectName("stacked_widget")
+        # Master navigation deck
+        self.deck = QStackedWidget()
+        self.setCentralWidget(self.deck)
 
-        # 2. Instantiate your custom pages
-        self.chat_page = ChatPage()
-        self.profile_page = ProfilePage()
-
-        # 3. Take your existing static UI elements from the global feed layout
-        # We wrap them into a temporary container to act as your "Explore" page
-        self.main_page = QtWidgets.QWidget()
-        self.main_layout = QtWidgets.QHBoxLayout(self.main_page)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        # 1. Instantiate the explicit page components
+        self.login_page = LoginPage()
+        self.register_page = RegisterPage()
+        self.additional_page = AdditionalInfoPage()
+        self.interest_page = InterestPage()
         
-        # Pull out your existing layout elements from the primary interface
-        self.ui.horizontalLayout.removeWidget(self.ui.feed_container)
-        self.ui.horizontalLayout.removeWidget(self.ui.right_panel)
+        # 2. Build Dashboard Container Frame (Workspace Index 4)
+        self.dashboard_window = QtWidgets.QWidget()
+        self.ui_dashboard = Ui_MainWindow()
+        self.ui_dashboard.setupUi(self.dashboard_window)
+
+        # 3. Mount pages strictly into sequential deck indexes matching test.py
+        # Index 0 -> Login Screen Layout
+        # Index 1 -> Register Screen Layout
+        # Index 2 -> Additional Profile Info Collection Frame
+        # Index 3 -> Interests Selector Checklist View
+        # Index 4 -> Core Dashboard Operations Space
+        self.deck.addWidget(self.login_page)       # Index 0
+        self.deck.addWidget(self.register_page)    # Index 1
+        self.deck.addWidget(self.additional_page)  # Index 2
+        self.deck.addWidget(self.interest_page)    # Index 3
+        self.deck.addWidget(self.dashboard_window)  # Index 4
+
+        # Wire internal workspace controls for chat/profile tabs
+        self.setup_internal_dashboard_tabs()
+
+        # Monitor layout alterations to sync backend states automatically
+        self.deck.currentChanged.connect(self.sync_active_view_state)
+
+        # Launch the application at the Login frame entry node
+        self.deck.setCurrentIndex(0)
+
+    def setup_internal_dashboard_tabs(self):
+        """Constructs and pins functional view tabs within Dashboard Workspace Workspace Index 4"""
+        self.inner_stack = QtWidgets.QStackedWidget()
+
+        # Initialize Chat UI
+        self.chat_view = QtWidgets.QWidget()
+        self.ui_chat = Ui_ChatForm()
+        self.ui_chat.setupUi(self.chat_view)
+
+        # Initialize Profile UI
+        self.profile_view = QtWidgets.QWidget()
+        self.ui_profile = Ui_ProfileForm()
+        self.ui_profile.setupUi(self.profile_view)
+
+        # Add tabs to interior dashboard switcher
+        self.inner_stack.addWidget(self.chat_view)     # Sub-Index 0
+        self.inner_stack.addWidget(self.profile_view)  # Sub-Index 1
+
+        # Replace UI workspace layout placeholder with live views safely
+        if self.ui_dashboard.horizontalLayout.indexOf(self.ui_dashboard.feed_container) != -1:
+            self.ui_dashboard.horizontalLayout.removeWidget(self.ui_dashboard.feed_container)
         
-        # Drop them directly into our container widget layout
-        self.main_layout.addWidget(self.ui.feed_container)
-        self.main_layout.addWidget(self.ui.right_panel)
+        self.ui_dashboard.horizontalLayout.addWidget(self.inner_stack)
 
-        # 4. Rig the pages onto the Stacked Widget deck
-        # Index 0 = Explore, Index 1 = Message, Index 2 = Profile
-        self.stacked_widget.addWidget(self.main_page)
-        #self.stacked_widget.addWidget(self.explore_page)
-        self.stacked_widget.addWidget(self.chat_page)
-        self.stacked_widget.addWidget(self.profile_page)
+        # Map sidebar layout pushbuttons to adjust internal workspace indexes
+        self.ui_dashboard.btn_message.clicked.connect(lambda: self.inner_stack.setCurrentIndex(0))
+        self.ui_dashboard.btn_profile.clicked.connect(lambda: self.inner_stack.setCurrentIndex(1))
 
-        # 5. Insert the stacked widget container next to your sidebar
-        self.ui.horizontalLayout.addWidget(self.stacked_widget)
+    def sync_active_view_state(self, index):
+        """Pre-loads user content parameters whenever view changes take place"""
+        from backend.session import SESSION
+        current_uid = SESSION.get("user_id")
 
-        # 6. Wire up navigation logic to the sidebar push buttons
-        self.ui.btn_mainpage.clicked.connect(lambda: self.switch_page(0))    
-        self.ui.btn_explore.clicked.connect(lambda: self.switch_page(1))
-        self.ui.btn_message.clicked.connect(lambda: self.switch_page(2))
-        self.ui.btn_profile.clicked.connect(lambda: self.switch_page(3))
-
-        # Start with the Explore Feed active
-        self.switch_page(0)
-
-    def switch_page(self, index):
-        self.stacked_widget.setCurrentIndex(index)
-
+        if index == 4 and current_uid:
+            # Safely refresh active contacts panel when arriving at dashboard
+            if hasattr(self.ui_chat, "list_friends"):
+                from backend.chat_logic import load_chat_users
+                load_chat_users(self.ui_chat, current_uid)
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = ZestApp()
-    window.show()
+    app = QApplication(sys.argv)
+    main_window = ZestAppMainWindow()
+    main_window.show()
     sys.exit(app.exec_())
