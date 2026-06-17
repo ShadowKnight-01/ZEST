@@ -1,81 +1,67 @@
-from PyQt5.QtWidgets import QMainWindow
-from ui_interests import Ui_MainWindow
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, 
+    QLabel, QPushButton,
+    QMessageBox, QCheckBox, QGridLayout
+)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from Database.db_connect import supabase
 from backend.session import SESSION
 
-
-class InterestPage(QMainWindow):
-
-    def __init__(self, user_id=None):
+class InterestPage(QWidget):
+    def __init__(self, stack_manager, return_to_profile=False):
         super().__init__()
+        self.stack = stack_manager
+        self.return_to_profile = return_to_profile
+        self.init_ui()
 
-        self.user_id = user_id
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setSpacing(12)
 
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        title = QLabel("Select Hobbies / Interests")
+        title.setFont(QFont('Segoe UI', 25, QFont.Bold))
+        layout.addWidget(title)
 
-        self.ui.btn_submit.clicked.connect(
-            self.save_interest
-        )
+        grid_widget = QWidget()
+        grid = QGridLayout(grid_widget)
+        
+        self.tags = ["Games", "Music", "Tech", "Cooking", "Art", "Books", "Sports", "Traveling", "Movies", "Photography"]
+        self.boxes = []
 
+        for index, tag in enumerate(self.tags):
+            box = QCheckBox(tag)
+            grid.addWidget(box, index // 2, index % 2)
+            self.boxes.append(box)
 
-    def save_interest(self):
+        layout.addWidget(grid_widget)
 
-        interests = []
+        btn_save = QPushButton("Save && Finish Profile Configuration")
+        btn_save.setFixedWidth(320)
+        btn_save.clicked.connect(self.commit_interests)
+        layout.addWidget(btn_save)
 
-        boxes = [
-            self.ui.chk_games,
-            self.ui.chk_music,
-            self.ui.chk_tech,
-            self.ui.chk_cooking,
-            self.ui.chk_art,
-            self.ui.chk_books,
-            self.ui.chk_sports,
-            self.ui.chk_traveling,
-            self.ui.chk_movies,
-            self.ui.chk_photography
-        ]
+        self.setLayout(layout)
 
-
-        for box in boxes:
-            if box.isChecked():
-                interests.append(box.text())
-
-
-        if not interests:
-            from PyQt5.QtWidgets import QMessageBox
-            QMessageBox.warning(
-                self,
-                "No Interest",
-                "Select at least one interest"
-            )
+    def commit_interests(self):
+        selected = [b.text() for b in self.boxes if b.isChecked()]
+        if not selected:
+            QMessageBox.warning(self, "Validation Error", "Select at least 1 focus tag.")
             return
 
-
-        interest_text = ", ".join(interests)
-
-        from backend.profile import save_interest
-
-        result = save_interest(
-            self.user_id,
-            interest_text
-        )
-
-        if "successfully" in result.lower():
-            QMessageBox.information(
-                self,
-                "Success",
-                "Interest saved!"
-            )
-
-            # --- FIX: Route back to Login view (Index 0) to verify account cycle ---
-            main_window = self.window()
-            if hasattr(main_window, "deck"):
-                main_window.deck.setCurrentIndex(0)
-            elif self.parent():
-                self.parent().setCurrentIndex(0)
-        else:
-            QMessageBox.warning(
-                self,
-                "Database Issue",
-                str(result)
-            )
+        interests_csv = ", ".join(selected)
+        try:
+            supabase.table("users").update({"interest": interests_csv}).eq("user_id", SESSION["user_id"]).execute()
+            SESSION["interest"] = interests_csv
+            
+            QMessageBox.information(self, "Success", "Profile data configured successfully.")
+            
+            if self.return_to_profile:
+                # Routed via the Profile Edit View sub-layer
+                self.stack.setCurrentIndex(4) # Bounce to Core Window Stack Frame
+                self.stack.widget(4).switch_tab(0) # Route inside main stack directly to view 0 (Profile Tab)
+            else:
+                self.stack.setCurrentIndex(3) # Route to natural Authentication Log In sequence
+        except Exception as err:
+            QMessageBox.critical(self, "Error", str(err))

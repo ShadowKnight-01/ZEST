@@ -1,245 +1,118 @@
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFrame,
-    QLabel, QLineEdit, QPushButton, 
-    QComboBox, QDateEdit, QMessageBox
+    QWidget, QVBoxLayout, QComboBox, 
+    QLabel, QLineEdit, QPushButton,
+    QMessageBox, QScrollArea
 )
-from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from Database.db_connect import supabase
 from backend.session import SESSION
-from backend.profile import save_additional_info          # Import the backend code from the file
-import sys
+from datetime import datetime
+
 
 class AdditionalInfoPage(QWidget):
-
-    def __init__(
-        self, 
-        user_id=None, 
-        username="", 
-        full_name=""
-    ):
+    def __init__(self, stack_manager):
         super().__init__()
+        self.stack = stack_manager
+        self.init_ui()
 
-        self.user_id = user_id
-        self.username = username
-        self.full_name = full_name
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setSpacing(15)
 
-        self.setWindowTitle("Additional Infomation")
-        self.resize(500, 700)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("background: transparent; border: none;")
 
-        # ===== STYLESHEET =====
-        self.setStyleSheet("""
-        QWidget {
-            background-color: #0B1120;
-            color: #F8FAFC;
-            font-family: Segoe UI;
-        }
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setAlignment(Qt.AlignCenter)
+        scroll_layout.setSpacing(12)
 
-        QFrame#AdditionalInfoCard {
-            background-color: #162033;
-            border-radius: 20px;
-            padding: 30px;
-        }
+        title = QLabel("Additional Information")
+        title.setFont(QFont('Segoe UI', 16, QFont.Bold))
+        layout.addWidget(title)
 
-        QLabel {
-            color: #F8FAFC;
-        }
+        self.cmb_gender = QComboBox()
+        self.cmb_gender.addItems(["Male", "Female"])
+        self.cmb_gender.setStyleSheet("border: 2px solid #3B82F6;")
+        self.cmb_gender.setFixedWidth(320)
 
-        QLabel#titleLabel {
-            font-size: 24px;
-            font-weight: 700;
-            background-color: transparent;
-        }
+        self.txt_dob = QLineEdit()
+        self.txt_dob.setPlaceholderText("Date of Birth (DD-MM-YYYY)")
+        self.txt_dob.setStyleSheet("border: 2px solid #3B82F6;")
+        self.txt_dob.setFixedWidth(320)
 
-        QLabel#subtitleLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            font-weight: 500;
-            background-color: transparent;
-        }
-                           
-        QLabel#lblUserLabel{
-            color: #94A3B8;
-            font-size: 13px;
-            font-weight: 500;
-            background-color: transparent;
-        }
-                           
-        QLabel#lblIDLabel{
-            color: #64748B;
-            font-size: 11px;
-            font-weight: 500;
-            background-color: transparent;
-        }
+        self.txt_course = QLineEdit()
+        self.txt_course.setPlaceholderText("Course (e.g., Computer Science)")
+        self.txt_course.setStyleSheet("border: 2px solid #3B82F6;")
+        self.txt_course.setFixedWidth(320)
 
-        QLineEdit, QComboBox, QDateEdit {
-            background-color: #253247;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 12px;
-            color: white;
-            font-size: 11pt;
-        }
+        self.cmb_education = QComboBox()
+        self.cmb_education.addItems(["Diploma", "Foundation/Matriculation", "Bachelor's Degree", "Master's Degree", "PhD"])
+        self.cmb_education.setStyleSheet("border: 2px solid #3B82F6;")
+        self.cmb_education.setFixedWidth(320)
 
-        QLineEdit:focus, QComboBox:focus, QDateEdit:focus {
-            border: 2px solid #3B82F6;
-        }
-                           
-        QPushButton {
-            background-color: #3B82F6;
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 11pt;
-            font-weight: bold;
-        }
+        self.txt_state = QLineEdit()
+        self.txt_state.setPlaceholderText("State (e.g., Selangor)")
+        self.txt_state.setStyleSheet("border: 2px solid #3B82F6;")
+        self.txt_state.setFixedWidth(320)
 
-        QPushButton:hover {
-            background-color: #2563EB;
-        }
+        self.txt_city = QLineEdit()
+        self.txt_city.setPlaceholderText("City (e.g., Cyberjaya)")
+        self.txt_city.setStyleSheet("border: 2px solid #3B82F6;")
+        self.txt_city.setFixedWidth(320)
 
-        QLabel#loginLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            background-color: transparent;
-        }
+        btn_next = QPushButton("Continue")
+        btn_next.setFixedWidth(320)
+        btn_next.setStyleSheet("border: 2px solid #3B82F6;")
+        btn_next.clicked.connect(self.save_data)
 
-        QLabel#loginLabel a {
-            color: #60A5FA;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        """)
+        scroll_layout.addWidget(QLabel("Select Gender:"))
+        scroll_layout.addWidget(self.cmb_gender)
+        scroll_layout.addWidget(QLabel("Date of Birth:"))
+        scroll_layout.addWidget(self.txt_dob)
+        scroll_layout.addWidget(QLabel("Academic Course Portfolio:"))
+        scroll_layout.addWidget(self.txt_course)
+        scroll_layout.addWidget(QLabel("Current Education Level:"))
+        scroll_layout.addWidget(self.cmb_education)
+        scroll_layout.addWidget(QLabel("State Location Hub:"))
+        scroll_layout.addWidget(self.txt_state)
+        scroll_layout.addWidget(QLabel("City Region Assignment:"))
+        scroll_layout.addWidget(self.txt_city)
 
-        # MAIN LAYOUT 
-        main_layout = QVBoxLayout(self)
-        main_layout.addStretch()
+        scroll_layout.addWidget(btn_next)
+        scroll.setWidget(scroll_content)
+        main_box = QVBoxLayout(self)
+        main_box.addWidget(scroll)
+        self.setLayout(main_box)
 
-        # LOGIN CARD 
-        self.AdditionalInfoCard = QFrame()
-        self.AdditionalInfoCard.setObjectName("AdditionalInfoCard")
-        self.AdditionalInfoCard.setMinimumWidth(350)
-        self.AdditionalInfoCard.setMaximumWidth(420)
-
-        card_layout = QVBoxLayout(self.AdditionalInfoCard)
-        card_layout.setSpacing(15)
-
-        # TITLE 
-        self.title = QLabel("Additional Infomation")
-        self.title.setObjectName("titleLabel")
-        self.title.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(self.title)
-
-        # SUBTITLE
-        self.subtitle = QLabel("Please complete your profile details")
-        self.subtitle.setObjectName("subtitleLabel")
-        self.subtitle.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(self.subtitle)
-
-        card_layout.addSpacing(20)
-
-        self.lblUser = QLabel(f"Username: {self.username}")
-        self.lblUser.setObjectName("lblUserLabel")
-        card_layout.addWidget(self.lblUser)
-
-        self.lblID = QLabel(f"User ID: {self.user_id}")
-        self.lblID.setObjectName("lblIDLabel")
-        card_layout.addWidget(self.lblID)
-
-        # Gender
-        self.inputgender = QComboBox()
-        self.inputgender.addItems(["Select Gender", "Male", "Female"])
-        card_layout.addWidget(self.inputgender)
-
-        # Birth date
-        self.inputBirthday = QDateEdit()
-        self.inputBirthday.setCalendarPopup(True)  # enables calendar UI
-        self.inputBirthday.setDate(QDate.currentDate())  # default value
-        self.inputBirthday.setMinimumDate(QDate(1, 1, 1900))
-        self.inputBirthday.setMaximumDate(QDate.currentDate())
-        card_layout.addWidget(self.inputBirthday)
-
-        # Course
-        self.inputCourse = QLineEdit()
-        self.inputCourse.setPlaceholderText("Course (e.g. Computer Science)")
-        card_layout.addWidget(self.inputCourse)
-
-        # educated Place
-        self.inputEducation = QLineEdit()
-        self.inputEducation.setPlaceholderText("Education Institution (e.g. University Name)")
-        card_layout.addWidget(self.inputEducation)
-
-        # State
-        self.inputState = QLineEdit()
-        self.inputState.setPlaceholderText("State")
-        card_layout.addWidget(self.inputState)
-
-        # City
-        self.inputCity = QLineEdit()
-        self.inputCity.setPlaceholderText("City")
-        card_layout.addWidget(self.inputCity)
-
-        card_layout.addSpacing(15)
-
-        # Button
-        self.btnSubmit = QPushButton("Save Information")
-        self.btnSubmit.clicked.connect(self.save_info)
-        card_layout.addWidget(self.btnSubmit)
-
-        # Center Card
-        main_layout.addWidget(
-            self.AdditionalInfoCard,
-            alignment=Qt.AlignCenter
-        )
-        main_layout.addStretch()
-
+    def save_data(self):
+        dob_str = self.txt_dob.text().strip()
+        gender = self.cmb_gender.currentText()
         
-    # Save Function
-    def save_info(self):
-        gender = self.inputgender.currentText()
-        birthday = self.inputBirthday.date().toString("yyyy-MM-dd")
-        course = self.inputCourse.text()
-        education = self.inputEducation.text()
-        state = self.inputState.text()
-        city = self.inputCity.text()
+        birth_date = None
+        for format in ("%Y-%m-%d", "%d-%m-%Y"):
+            try:
+                birth_date = datetime.strptime(dob_str, format)
+                break
+            except ValueError:
+                continue
+        if not birth_date:
+            QMessageBox.warning(self, "Error", "Please format date clearly as DD-MM-YYYY or YYYY-MM-DD.")
 
-        if gender == "Select Gender" or not course or not education or not state or not city:
-            QMessageBox.warning(self, "Validation Error", "Please fill in all required fields.")
-            return
-        
-        if not self.user_id:
-            from backend.session import SESSION
-            self.user_id = SESSION.get("user_id")
+        clean_supabase_date = birth_date.strftime("%Y-%m-%d")
+        age = datetime.now().year - birth_date.year
 
-        # Ensure we are using the freshly updated runtime session token tracking attribute
-        result = save_additional_info(self.user_id, gender, birthday, course, education, state, city)
+        try:
+            supabase.table("users").update({
+                "gender": gender,
+                "birthday": clean_supabase_date,
+                "age": age
+            }).eq("user_id", SESSION["user_id"]).execute()
 
-        if isinstance(result, dict) and result.get("status") == "success":
-            QMessageBox.information(
-                self,
-                "Success",
-                "Your information has been saved successfully!"
-            )
-
-            # --- FIX: Dynamically hand over the user_id context to the Interests Page ---
-            main_window = self.window()
-            if hasattr(main_window, "interest_page"):
-                main_window.interest_page.user_id = self.user_id
-
-            # Move to Interests Checklist Screen (Index 3)
-            self.parent().setCurrentIndex(3)
-        else:
-            # FIX: Swapped incorrect box title text assignment string crash
-            QMessageBox.warning(
-                self,
-                "Error Saving Info",
-                str(result)
-            )
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = AdditionalInfoPage()
-    window.show()
-
-    sys.exit(app.exec_())
+            SESSION["gender"] = gender
+            self.stack.setCurrentIndex(2) # Advance to Interests
+        except Exception as err:
+            QMessageBox.critical(self, "Error", f"Failed updating traits: {str(err)}")
