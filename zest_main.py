@@ -92,13 +92,13 @@ class WorkspaceSuite(QWidget):
         un_container = QHBoxLayout()
         un_container.addWidget(QLabel("@"))
         self.txt_editable_username = QLineEdit()
-        self.txt_editable_username.setToolTip("Type here and click Save to change your username")
+        self.txt_editable_username.setToolTip("Type here and click Save button to change your username")
         un_container.addWidget(self.txt_editable_username)
         
         self.lbl_prof_gender = QLabel("Gender: ")
         self.lbl_prof_interests = QLabel("Interests: ")
 
-        btn_save_username = QPushButton("Save Username Change")
+        btn_save_username = QPushButton("Save New Username")
         btn_save_username.clicked.connect(self.update_username_inline)
 
         btn_edit_interests = QPushButton("Edit Interests Tags")
@@ -128,8 +128,8 @@ class WorkspaceSuite(QWidget):
     def sync_dynamic_profile_view(self):
         self.lbl_prof_fullname.setText(SESSION["full_name"])
         self.txt_editable_username.setText(SESSION["username"])
-        self.lbl_prof_gender.setText(f"Gender Parameters: {SESSION['gender']}")
-        self.lbl_prof_interests.setText(f"Subscribed Focus Tags:\n{SESSION['interest']}")
+        self.lbl_prof_gender.setText(f"Gender: {SESSION['gender']}")
+        self.lbl_prof_interests.setText(f"Interested Tags:\n{SESSION['interest']}")
         
         # Load local user's historical active contacts rolling frame
         try:
@@ -146,22 +146,22 @@ class WorkspaceSuite(QWidget):
                 for profile in users_res.data:
                     self.lst_profile_friends.addItem(profile["username"])
         except Exception as err:
-            print(f"Silenced background contact parsing drop: {err}")
+            print(f"Database Error: {err}")
 
     def update_username_inline(self):
         new_un = self.txt_editable_username.text().strip()
         if not new_un or new_un == SESSION["username"]: return
 
         try:
-            # Check duplicate username availability constraints
+            # check if username is a duplicate
             check = supabase.table("users").select("username").eq("username", new_un).execute()
             if check.data:
-                QMessageBox.warning(self, "Constraint Error", "Username token already claimed across network profiles.")
+                QMessageBox.warning(self, "Constraint Error", "Username already exists.")
                 return
 
             supabase.table("users").update({"username": new_un}).eq("user_id", SESSION["user_id"]).execute()
             SESSION["username"] = new_un
-            QMessageBox.information(self, "System Notification", "Username trace updated cleanly across core layers.")
+            QMessageBox.information(self, "System Notification", "Username have been updated successfully.")
         except Exception as err:
             QMessageBox.critical(self, "Fault Drop", str(err))
 
@@ -291,7 +291,7 @@ class WorkspaceSuite(QWidget):
 
      
         right_pane = QVBoxLayout()
-        self.lbl_chat_header_active_target = QLabel("Target Node: Select a user to start chatting")
+        self.lbl_chat_header_active_target = QLabel("Select a user to start chatting")
         self.lbl_chat_header_active_target.setFont(QFont('Segoe UI', 12, QFont.Bold))
         right_pane.addWidget(self.lbl_chat_header_active_target)
 

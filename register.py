@@ -81,16 +81,35 @@ class RegisterPage(QWidget):
         if not re.match(r"^[\w\.-]+@[\w\.-]+\.edu\.my$", email):
             QMessageBox.warning(self, "Error", "Invalid education domain configuration. Redirecting registration check.")
             return
+        if not re.match(r"^[A-Za-z]+([ /@.'-][A-Za-z]+)*$", full_name):
+            QMessageBox.warning(self, "Error", "Full Name can only contain these six symbols: /  space  -  @  '  .")
+            return
+        if not re.match(r"^[A-Za-z0-9_.-]+$", username):
+            QMessageBox.warning(self, "Error", "Username can only contain letters, numbers and underscore")
+            return
         if password != confirm_password:
             QMessageBox.warning(self, "Error", "Passwords do not match.")
             return
+        
+        if not re.search(r"[a-z]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain lower case alphabet")
+            return
+        if not re.search(r"[A-Z]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain upper case alphabet")
+            return
+        if not re.search(r"[\d]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain numbers")
+            return
+        if len(password) < 8:
+            QMessageBox.warning(self, "Error", "Your password must contain at least 8 characters")
+            return
+        
 
         try:
             # Check for duplicate accounts gracefully
             dup_check = supabase.table("users").select("email, username").or_(f"email.eq.{email},username.eq.{username}").execute()
             if dup_check.data:
-                QMessageBox.information(self, "Existing Profile", "This identity profile is already registered. Moving to Sign In screen.")
-                self.stack.setCurrentIndex(3)
+                QMessageBox.information(self, "Existing Profile", "This identity profile is already registered. \nYou may go to login Page by clicking the link below register button.")
                 return
 
             # Set local runtime memory token

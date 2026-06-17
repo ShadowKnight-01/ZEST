@@ -25,7 +25,7 @@ class LoginPage(QWidget):
         layout.setAlignment(Qt.AlignCenter)
         layout.setSpacing(15)
 
-        title = QLabel("Sign In")
+        title = QLabel("LogIn")
         title.setFont(QFont('Segoe UI', 25, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
@@ -61,14 +61,14 @@ class LoginPage(QWidget):
         try:
             result = supabase.table("users").select("*").or_(f"email.eq.{ident},username.eq.{ident}").execute()
             if not result.data:
-                QMessageBox.warning(self, "Auth Error", "No identity registry profile mapped to those configurations.")
+                QMessageBox.warning(self, "Auth Error", "Email or Username not found, you may need to register.")
                 return
 
             db_user = result.data[0]
             hashed_input = hashlib.blake2b(password.encode()).hexdigest()
 
             if db_user["password"] != hashed_input:
-                QMessageBox.warning(self, "Auth Error", "Invalid passcode security sequence verification.")
+                QMessageBox.warning(self, "Auth Error", "Wrong password, you may try again.")
                 return
 
             # Commit globally mapped Session memory pointers

@@ -37,7 +37,7 @@ class InterestPage(QWidget):
 
         layout.addWidget(grid_widget)
 
-        btn_save = QPushButton("Save && Finish Profile Configuration")
+        btn_save = QPushButton("Save && Finish Profile Form")
         btn_save.setFixedWidth(320)
         btn_save.clicked.connect(self.commit_interests)
         layout.addWidget(btn_save)
@@ -47,7 +47,7 @@ class InterestPage(QWidget):
     def commit_interests(self):
         selected = [b.text() for b in self.boxes if b.isChecked()]
         if not selected:
-            QMessageBox.warning(self, "Validation Error", "Select at least 1 focus tag.")
+            QMessageBox.warning(self, "Validation Error", "Select at least 1 interest tag.")
             return
 
         interests_csv = ", ".join(selected)
@@ -55,7 +55,7 @@ class InterestPage(QWidget):
             supabase.table("users").update({"interest": interests_csv}).eq("user_id", SESSION["user_id"]).execute()
             SESSION["interest"] = interests_csv
             
-            QMessageBox.information(self, "Success", "Profile data configured successfully.")
+            QMessageBox.information(self, "Success", "Profile data completed successfully.")
             
             if self.return_to_profile:
                 # Routed via the Profile Edit View sub-layer

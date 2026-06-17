@@ -73,13 +73,13 @@ class AdditionalInfoPage(QWidget):
         scroll_layout.addWidget(self.cmb_gender)
         scroll_layout.addWidget(QLabel("Date of Birth:"))
         scroll_layout.addWidget(self.txt_dob)
-        scroll_layout.addWidget(QLabel("Academic Course Portfolio:"))
+        scroll_layout.addWidget(QLabel("Academic Course:"))
         scroll_layout.addWidget(self.txt_course)
         scroll_layout.addWidget(QLabel("Current Education Level:"))
         scroll_layout.addWidget(self.cmb_education)
-        scroll_layout.addWidget(QLabel("State Location Hub:"))
+        scroll_layout.addWidget(QLabel("State :"))
         scroll_layout.addWidget(self.txt_state)
-        scroll_layout.addWidget(QLabel("City Region Assignment:"))
+        scroll_layout.addWidget(QLabel("City :"))
         scroll_layout.addWidget(self.txt_city)
 
         scroll_layout.addWidget(btn_next)
@@ -89,7 +89,7 @@ class AdditionalInfoPage(QWidget):
         self.setLayout(main_box)
 
     def save_data(self):
-        dob_str = self.txt_dob.text().strip()
+        dob_str = self.txt_dob.text().strip() # dob date of birth
         gender = self.cmb_gender.currentText()
         
         birth_date = None
@@ -100,10 +100,12 @@ class AdditionalInfoPage(QWidget):
             except ValueError:
                 continue
         if not birth_date:
-            QMessageBox.warning(self, "Error", "Please format date clearly as DD-MM-YYYY or YYYY-MM-DD.")
+            QMessageBox.warning(self, "Error", "Please format date as DD-MM-YYYY or YYYY-MM-DD.")
+            return
 
         clean_supabase_date = birth_date.strftime("%Y-%m-%d")
-        age = datetime.now().year - birth_date.year
+        today = datetime.now()
+        age = today.year - birth_date.year
 
         try:
             supabase.table("users").update({
