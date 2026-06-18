@@ -1,222 +1,134 @@
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFrame,
-    QLabel, QLineEdit, QPushButton, QMessageBox
+    QApplication, QMainWindow, QWidget, QStackedWidget, QVBoxLayout, 
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QComboBox, 
+    QMessageBox, QListWidget, QFrame, QCheckBox, QGridLayout, QScrollArea
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from Database.db_connect import supabase
+from backend.session import SESSION
+import re
+import uuid
+import hashlib
 # Impord the backend code from the file
-from backend.auth import register_new_user
-import sys
 
 class RegisterPage(QWidget):
-    def open_login(self):
-        from loginpage import LoginPage
-        self.login_window = LoginPage()
-        self.login_window.show()
-        self.close()
-
-    def __init__(self):
+    def __init__(self, stack_manager):
         super().__init__()
+        self.stack = stack_manager
+        self.init_ui()
 
-        self.setWindowTitle("Register")
-        self.resize(500, 700)
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setSpacing(15)
 
-        # ===== STYLESHEET =====
-        self.setStyleSheet("""
-        QWidget {
-            background-color: #0B1120;
-            color: #F8FAFC;
-            font-family: Segoe UI;
-        }
+        title = QLabel("Create Account\nRegister to get started")
+        title.setFont(QFont('Segoe UI', 25, QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        QFrame#RegisterCard {
-            background-color: #162033;
-            border-radius: 20px;
-            padding: 30px;
-        }
-
-        QLabel {
-            color: #F8FAFC;
-        }
-
-        QLabel#titleLabel {
-            font-size: 24px;
-            font-weight: 700;
-            background-color: transparent;
-        }
-
-        QLabel#subtitleLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            font-weight: 500;
-            background-color: transparent;
-        }
-
-        QLineEdit {
-            background-color: #253247;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 12px;
-            color: white;
-            font-size: 11pt;
-        }
-
-        QLineEdit:focus {
-            border: 2px solid #3B82F6;
-        }
-
-        QPushButton {
-            background-color: #3B82F6;
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 11pt;
-            font-weight: bold;
-        }
-
-        QPushButton:hover {
-            background-color: #2563EB;
-        }
-
-        QLabel#loginLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            background-color: transparent;
-        }
-
-        QLabel#loginLabel a {
-            color: #60A5FA;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        """)
-
-        # MAIN LAYOUT 
-        main_layout = QVBoxLayout(self)
-
-        main_layout.addStretch()
-
-        # LOGIN CARD 
-        self.registerCard = QFrame()
-        self.registerCard.setObjectName("RegisterCard")
-        self.registerCard.setMinimumWidth(350)
-        self.registerCard.setMaximumWidth(420)
-
-        card_layout = QVBoxLayout(self.registerCard)
-        card_layout.setSpacing(15)
-
-        # TITLE 
-        self.title = QLabel("Create Account")
-        self.title.setObjectName("titleLabel")
-        self.title.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(self.title)
-
-        # SUBTITLE
-        self.subtitle = QLabel("Register to get started")
-        self.subtitle.setObjectName("subtitleLabel")
-        self.subtitle.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(self.subtitle)
-
-        card_layout.addSpacing(20)
-
-        # Full Name
-        self.inputFullName = QLineEdit()
-        self.inputFullName.setPlaceholderText("Full Name")
-        card_layout.addWidget(self.inputFullName)
-
-        # Username
-        self.inputUsername = QLineEdit()
-        self.inputUsername.setPlaceholderText("Username")
-        card_layout.addWidget(self.inputUsername)
-
-        # Email
-        self.inputEmail = QLineEdit()
-        self.inputEmail.setPlaceholderText("Email")
-        card_layout.addWidget(self.inputEmail)
-
-        # Password
-        self.inputPassword = QLineEdit()
-        self.inputPassword.setPlaceholderText("Password")
-        self.inputPassword.setEchoMode(QLineEdit.Password)
-        card_layout.addWidget(self.inputPassword)
-
-        # Confirm Password
-        self.inputConfirmPassword = QLineEdit()
-        self.inputConfirmPassword.setPlaceholderText("Confirm Password")
-        self.inputConfirmPassword.setEchoMode(QLineEdit.Password)
-        card_layout.addWidget(self.inputConfirmPassword)
-
-        card_layout.addSpacing(10)
-
-        # Register Button
-        self.btnRegister = QPushButton("Register")
-        self.btnRegister.clicked.connect(self.register)
-        card_layout.addWidget(self.btnRegister)
-
-        card_layout.addSpacing(15)
-
-        # Login Link
-        self.lblLogin = QLabel(
-            'Already have an account? <a href="loginpage">Login</a>'
-        )
-        self.lblLogin.setObjectName("loginLabel")
-        self.lblLogin.setAlignment(Qt.AlignCenter)
-        self.lblLogin.linkActivated.connect(self.open_login)
-        card_layout.addWidget(self.lblLogin)
-
-        # Center Card
-        main_layout.addWidget(
-            self.registerCard,
-            alignment=Qt.AlignCenter
-        )
-
-        main_layout.addStretch()
-
-        # Press Enter in password field
-        self.inputPassword.returnPressed.connect(
-            self.btnRegister.click
-        )
-   
+        self.txt_fullname = QLineEdit()
+        self.txt_fullname.setPlaceholderText("Full Name")
+        self.txt_fullname.setFixedWidth(320)
         
-    # REGISTER FUNCTION
-    def register(self):
-        full_name = self.inputFullName.text()
-        username = self.inputUsername.text()
-        email = self.inputEmail.text()
-        password = self.inputPassword.text()
-        confirm_password = self.inputConfirmPassword.text()
+        self.txt_username = QLineEdit()
+        self.txt_username.setPlaceholderText("Username")
+        self.txt_username.setFixedWidth(320)
 
-        result = register_new_user(full_name, username, email, password, confirm_password)
+        self.txt_email = QLineEdit()
+        self.txt_email.setPlaceholderText("Email (e.g. name@student.edu.my)")
+        self.txt_email.setFixedWidth(320)
 
-        if isinstance(result, dict) and result.get("status") == "success":
-            QMessageBox.information(
-                self,
-                "Registration Successful",
-                "Account created successfully!"
-            )
+        self.txt_password = QLineEdit()
+        self.txt_password.setPlaceholderText("Password")
+        self.txt_password.setEchoMode(QLineEdit.Password)
+        self.txt_password.setFixedWidth(320)
 
-            from additional_information import AdditionalInfoPage
+        self.txt_confirm_pass = QLineEdit()
+        self.txt_confirm_pass.setPlaceholderText("Confirm Password")
+        self.txt_confirm_pass.setEchoMode(QLineEdit.Password)
+        self.txt_confirm_pass.setFixedWidth(320)
 
-            self.next_page = AdditionalInfoPage(
-                user_id=result["user_id"],
-                username=result["username"],
-                full_name=full_name
-            )
+        btn_register = QPushButton("Register")
+        btn_register.setFixedWidth(320)
+        btn_register.clicked.connect(self.handle_registration)
 
-            self.next_page.show()
-            self.close()
+        btn_goto_login = QPushButton("Already have an account? Login")
+        btn_goto_login.setFixedWidth(320)
+        btn_goto_login.setStyleSheet("background: transparent; padding: 3px; border: 2px solid #3B82F6; color: white;")
+        btn_goto_login.clicked.connect(lambda: self.stack.setCurrentIndex(3)) # Jump straight to Login
 
-        else:
-            QMessageBox.warning(
-                self,
-                "Registration Failed",
-                str(result)
-            )
+        layout.addWidget(self.txt_fullname)
+        layout.addWidget(self.txt_username)
+        layout.addWidget(self.txt_email)
+        layout.addWidget(self.txt_password)
+        layout.addWidget(self.txt_confirm_pass)
+        layout.addWidget(btn_register)
+        layout.addWidget(btn_goto_login)
+        self.setLayout(layout)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    def handle_registration(self):
+        full_name = self.txt_fullname.text().strip()
+        username = self.txt_username.text().strip()
+        email = self.txt_email.text().strip()
+        password = self.txt_password.text()
+        confirm_password = self.txt_confirm_pass.text()
 
-    window = RegisterPage()
-    window.show()
+        if not full_name or not username or not email or not password:
+            QMessageBox.warning(self, "Error", "All entry fields are required.")
+            return
+        if not re.match(r"^[\w\.-]+@[\w\.-]+\.edu\.my$", email):
+            QMessageBox.warning(self, "Error", "Invalid education domain configuration. Redirecting registration check.")
+            return
+        if not re.match(r"^[A-Za-z]+([ /@.'-][A-Za-z]+)*$", full_name):
+            QMessageBox.warning(self, "Error", "Full Name can only contain these six symbols: /  space  -  @  '  .")
+            return
+        if not re.match(r"^[A-Za-z0-9_.-]+$", username):
+            QMessageBox.warning(self, "Error", "Username can only contain letters, numbers and underscore")
+            return
+        if password != confirm_password:
+            QMessageBox.warning(self, "Error", "Passwords do not match.")
+            return
+        
+        if not re.search(r"[a-z]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain lower case alphabet")
+            return
+        if not re.search(r"[A-Z]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain upper case alphabet")
+            return
+        if not re.search(r"[\d]", password):
+            QMessageBox.warning(self, "Error", "Your password do not contain numbers")
+            return
+        if len(password) < 8:
+            QMessageBox.warning(self, "Error", "Your password must contain at least 8 characters")
+            return
+        
 
-    sys.exit(app.exec_())
+        try:
+            # Check for duplicate accounts gracefully
+            dup_check = supabase.table("users").select("email, username").or_(f"email.eq.{email},username.eq.{username}").execute()
+            if dup_check.data:
+                QMessageBox.information(self, "Existing Profile", "This identity profile is already registered. \nYou may go to login Page by clicking the link below register button.")
+                return
+
+            # Set local runtime memory token
+            SESSION["user_id"] = str(uuid.uuid4())
+            SESSION["full_name"] = full_name
+            SESSION["username"] = username
+
+            # Push baseline profile to DB
+            hashed_pw = hashlib.blake2b(password.encode()).hexdigest()
+            supabase.table("users").insert({
+                "user_id": SESSION["user_id"],
+                "full_name": full_name,
+                "username": username,
+                "email": email,
+                "password": hashed_pw
+            }).execute()
+
+            # Advance onwards to step 2
+            self.stack.setCurrentIndex(1)
+
+        except Exception as err:
+            QMessageBox.critical(self, "Database System Fault", f"Transmission dropped: {str(err)}")

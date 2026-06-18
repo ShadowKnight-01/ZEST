@@ -1,197 +1,88 @@
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFrame,
-    QLabel, QLineEdit, QPushButton
+    QApplication, QMainWindow, QWidget, QStackedWidget, QVBoxLayout, 
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QComboBox, 
+    QMessageBox, QListWidget, QFrame, QCheckBox, QGridLayout, QScrollArea
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMessageBox
 # Impord the backend code from the file
-from backend.auth import log_in_user
-from register import RegisterPage
-import sys
+
+from Database.db_connect import supabase
+from backend.session import SESSION
+import hashlib
+
+
 
 class LoginPage(QWidget):
-    def open_register(self):
-        self.register_window = RegisterPage()
-        self.register_window.show()
-        self.close()
-
-    def __init__(self):
+    def __init__(self, stack_manager):
         super().__init__()
+        self.stack = stack_manager
+        self.init_ui()
 
-        self.setWindowTitle("Login Page")
-        self.resize(500, 700)
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.setSpacing(15)
 
-        # STYLESHEET 
-        self.setStyleSheet("""
-        QWidget {
-            background-color: #0B1120;
-            color: #F8FAFC;
-            font-family: Segoe UI;
-        }
+        title = QLabel("LogIn")
+        title.setFont(QFont('Segoe UI', 25, QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        QFrame#LoginCard {
-            background-color: #162033;
-            border-radius: 20px;
-            padding: 30px;
-        }
+        self.txt_login = QLineEdit()
+        self.txt_login.setPlaceholderText("Username or Email")
+        self.txt_login.setFixedWidth(320)
 
-        QLabel {
-            color: #F8FAFC;
-        }
+        self.txt_password = QLineEdit()
+        self.txt_password.setPlaceholderText("Password")
+        self.txt_password.setEchoMode(QLineEdit.Password)
+        self.txt_password.setFixedWidth(320)
 
-        QLabel#titleLabel {
-            font-size: 24px;
-            font-weight: 700;
-            background-color: transparent;
-        }
+        btn_login = QPushButton("Log In")
+        btn_login.setFixedWidth(320)
+        btn_login.clicked.connect(self.auth_user)
 
-        QLabel#subtitleLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            font-weight: 500;
-            background-color: transparent;
-        }
+        btn_goto_register = QPushButton("Don\'t have an account? Create Account")
+        btn_goto_register.setFixedWidth(320)
+        btn_goto_register.setStyleSheet("background: transparent; padding: 3px; border: 2px solid #3B82F6; color: white;")
+        btn_goto_register.clicked.connect(lambda: self.stack.setCurrentIndex(0)) # Jump straight to Register
 
-        QLineEdit {
-            background-color: #253247;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 12px;
-            color: white;
-            font-size: 11pt;
-        }
+        layout.addWidget(self.txt_login)
+        layout.addWidget(self.txt_password)
+        layout.addWidget(btn_login)
+        layout.addWidget(btn_goto_register)
+        self.setLayout(layout)
 
-        QLineEdit:focus {
-            border: 2px solid #3B82F6;
-        }
+    def auth_user(self):
+        ident = self.txt_login.text().strip()
+        password = self.txt_password.text()
 
-        QPushButton {
-            background-color: #3B82F6;
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 11pt;
-            font-weight: bold;
-        }
+        try:
+            result = supabase.table("users").select("*").or_(f"email.eq.{ident},username.eq.{ident}").execute()
+            if not result.data:
+                QMessageBox.warning(self, "Auth Error", "Email or Username not found, you may need to register.")
+                return
 
-        QPushButton:hover {
-            background-color: #2563EB;
-        }
+            db_user = result.data[0]
+            hashed_input = hashlib.blake2b(password.encode()).hexdigest()
 
-        QPushButton:pressed {
-            background-color: #1D4ED8;
-        }
+            if db_user["password"] != hashed_input:
+                QMessageBox.warning(self, "Auth Error", "Wrong password, you may try again.")
+                return
 
-        QLabel#registerLabel {
-            color: #94A3B8;
-            font-size: 15px;
-            background-color: transparent;
-        }
+            # Commit globally mapped Session memory pointers
+            SESSION["user_id"] = db_user["user_id"]
+            SESSION["username"] = db_user["username"]
+            SESSION["full_name"] = db_user["full_name"]
+            SESSION["gender"] = db_user.get("gender", "Unspecified")
+            SESSION["interest"] = db_user.get("interest", "None Selected")
 
-        QLabel#registerLabel a {
-            color: #60A5FA;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        """)
+            # Route execution out directly to Workspace Suite Container
+            self.stack.widget(4).sync_dynamic_profile_view()
+            self.stack.widget(4).refresh_forum_feed()
+            self.stack.widget(4).load_conversations_list()
+            self.stack.setCurrentIndex(4)
 
-        # MAIN LAYOUT 
-        main_layout = QVBoxLayout(self)
-
-        main_layout.addStretch()
-
-        # LOGIN CARD 
-        self.loginCard = QFrame()
-        self.loginCard.setObjectName("LoginCard")
-        self.loginCard.setMinimumWidth(350)
-        self.loginCard.setMaximumWidth(420)
-
-        card_layout = QVBoxLayout(self.loginCard)
-        card_layout.setSpacing(15)
-
-        # TITLE 
-        self.titlelogin = QLabel("Welcome Back")
-        self.titlelogin.setObjectName("titleLabel")
-        self.titlelogin.setAlignment(Qt.AlignCenter)
-
-        card_layout.addWidget(self.titlelogin)
-
-        # SUBTITLE 
-        self.subtitle = QLabel("Sign in to continue")
-        self.subtitle.setObjectName("subtitleLabel")
-        self.subtitle.setAlignment(Qt.AlignCenter)
-
-        card_layout.addWidget(self.subtitle)
-        card_layout.addSpacing(20)
-
-        # EMAIL / USERNAME 
-        self.inputUsername = QLineEdit()
-        self.inputUsername.setPlaceholderText("Email or Username")
-        card_layout.addWidget(self.inputUsername)
-
-        # PASSWORD 
-        self.inputPass = QLineEdit()
-        self.inputPass.setPlaceholderText("Password")
-        self.inputPass.setEchoMode(QLineEdit.Password)
-        card_layout.addWidget(self.inputPass)
-
-        card_layout.addSpacing(10)
-
-        # LOGIN BUTTON 
-        self.btnLogin = QPushButton("Login")
-        self.btnLogin.clicked.connect(self.login)
-        card_layout.addWidget(self.btnLogin)
-
-        card_layout.addSpacing(15)
-
-        # REGISTER LINK 
-        self.lblRegister = QLabel(
-            'Don\'t have an account? <a href="register">Create Account</a>'
-        )
-        self.lblRegister.setObjectName("registerLabel")
-        self.lblRegister.setAlignment(Qt.AlignCenter)
-        self.lblRegister.linkActivated.connect(self.open_register)
-        card_layout.addWidget(self.lblRegister)
-
-        # Center Card
-        main_layout.addWidget(
-            self.loginCard,
-            alignment=Qt.AlignCenter
-        )
-
-        main_layout.addStretch()
-
-        # Press Enter in password field
-        self.inputPass.returnPressed.connect(
-            self.btnLogin.click
-        )
-
-    # LOGIN FUNCTION 
-    def login(self):
-        identifier = self.inputUsername.text().strip()    # change input inputUsername to input identifier
-        password   = self.inputPass.text() 
-
-        result = log_in_user(identifier, password)
-
-        if result == "User have successfully log in":
-            QMessageBox.information(
-                self,
-                "Login Successful",
-                result
-            )
-
-        else:
-            QMessageBox.warning(
-                self,
-                "Login Failed",
-                result
-            )
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = LoginPage()
-    window.show()
-
-    sys.exit(app.exec_())
+        except Exception as err:
+            QMessageBox.critical(self, "Runtime Stack Drop", str(err))

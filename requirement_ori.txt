@@ -35,10 +35,37 @@ Frontend: QtPy
 Backend: Python
 Cloud DB: Supabase
 
-
 register -> additional_information -> *Interest* -> Login -> Zest_main -> chat_page        
                                                                        -> pfpinterface         
                                                                        -> *explore friend*  
 Login -> Zest_main -> chat_page        
                    -> pfpinterface         
-                   -> *explore friend*  
+                   -> *explore friend* 
+
+
+ZEST_PROJECT/
+│
+├── frontend/ (Muhd Farhan)
+│   ├── ui/
+│   │   ├── login.py     Y 
+│   │   ├── register.py  Y
+│   │   ├── profile.py   Y
+│   │   ├── styleSheet.py     Y
+│   │   └── backend/session.py      Y
+│   │
+│   ├── assets/
+│   │   └── images/
+│   │   
+│   │
+│   └── main.py
+│
+├── (Balaa - Leader)
+│   ├── additional_information.py          Y
+│   ├── Interest_page.py      Y       
+│   └── Zest_main.py      
+│
+├── database/ (Jasswin Rao)
+│   ├── main.py   
+│   └── connection.py      Y
+│   
+└── requirements.txt

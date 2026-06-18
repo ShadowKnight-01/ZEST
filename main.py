@@ -1,7 +1,11 @@
 import sys
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QStackedWidget
+)
 
+from StyleSheet import Style_used_to_in_Login
 # Import your generated UI classes
+<<<<<<< HEAD
 from zest_main import Ui_MainWindow
 from chat_page import Ui_Form as Ui_ChatForm
 from pfpinterface import Ui_Form as Ui_ProfileForm
@@ -49,56 +53,47 @@ class ProfilePage(QtWidgets.QWidget):
 
 # Step 2: Create the controller that orchestrates the switching
 class ZestApp(QtWidgets.QMainWindow):
+=======
+from register import RegisterPage
+from additional_information import AdditionalInfoPage
+from interest_page import InterestPage
+from loginpage import LoginPage
+from zest_main import WorkspaceSuite
+
+class ApplicationExecutionEngine(QMainWindow):
+>>>>>>> 308f165e689f533fa857ae1d3bb1e4781387a917
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.setWindowTitle("ZEST Application")
+        self.resize(1100,700)
+        self.setStyleSheet(Style_used_to_in_Login)
 
-        # 1. Create a QStackedWidget instance
-        self.stacked_widget = QtWidgets.QStackedWidget(self.ui.centralwidget)
-        self.stacked_widget.setObjectName("stacked_widget")
+        self.deck = QStackedWidget()
+        self.setCentralWidget(self.deck)
 
+<<<<<<< HEAD
         # 2. Instantiate your custom pages
         self.chat_page = ChatPage()
         self.profile_page = ProfilePage(user_id=1)
+=======
+        # Primary Router Layer Map Position:
+        # Index 0 -> Register Layout View
+        # Index 1 -> Additional Info Layout View
+        # Index 2 -> Interests Checklist View
+        # Index 3 -> Login View Frame
+        # Index 4 -> Operational Workplace Dashboard Switcher (ZEST Deck Suite)
+>>>>>>> 308f165e689f533fa857ae1d3bb1e4781387a917
 
-        # 3. Take your existing static UI elements from the global feed layout
-        # We wrap them into a temporary container to act as your "Explore" page
-        self.explore_page = QtWidgets.QWidget()
-        self.explore_layout = QtWidgets.QHBoxLayout(self.explore_page)
-        self.explore_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Pull out your existing layout elements from the primary interface
-        self.ui.horizontalLayout.removeWidget(self.ui.feed_container)
-        self.ui.horizontalLayout.removeWidget(self.ui.right_panel)
-        
-        # Drop them directly into our container widget layout
-        self.explore_layout.addWidget(self.ui.feed_container)
-        self.explore_layout.addWidget(self.ui.right_panel)
+        self.deck.addWidget(RegisterPage(self.deck))
+        self.deck.addWidget(AdditionalInfoPage(self.deck))
+        self.deck.addWidget(InterestPage(self.deck))
+        self.deck.addWidget(LoginPage(self.deck))
+        self.deck.addWidget(WorkspaceSuite(self.deck))
 
-        # 4. Rig the pages onto the Stacked Widget deck
-        # Index 0 = Explore, Index 1 = Message, Index 2 = Profile
-        self.stacked_widget.addWidget(self.explore_page)
-        self.stacked_widget.addWidget(self.chat_page)
-        self.stacked_widget.addWidget(self.profile_page)
-
-        # 5. Insert the stacked widget container next to your sidebar
-        self.ui.horizontalLayout.addWidget(self.stacked_widget)
-
-        # 6. Wire up navigation logic to the sidebar push buttons
-        self.ui.btn_explore.clicked.connect(lambda: self.switch_page(0))
-        self.ui.btn_message.clicked.connect(lambda: self.switch_page(1))
-        self.ui.btn_profile.clicked.connect(lambda: self.switch_page(2))
-
-        # Start with the Explore Feed active
-        self.switch_page(0)
-
-    def switch_page(self, index):
-        self.stacked_widget.setCurrentIndex(index)
-
+        self.deck.setCurrentIndex(3)
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = ZestApp()
-    window.show()
+    app = QApplication(sys.argv)
+    engine = ApplicationExecutionEngine()
+    engine.show()
     sys.exit(app.exec_())
