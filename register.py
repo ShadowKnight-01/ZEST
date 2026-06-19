@@ -76,10 +76,10 @@ class RegisterPage(QWidget):
         confirm_password = self.txt_confirm_pass.text()
 
         if not full_name or not username or not email or not password:
-            QMessageBox.warning(self, "Error", "All entry fields are required.")
+            QMessageBox.warning(self, "Error", "Please fill in all required fields.")
             return
         if not re.match(r"^[\w\.-]+@[\w\.-]+\.edu\.my$", email):
-            QMessageBox.warning(self, "Error", "Invalid education domain configuration. Redirecting registration check.")
+            QMessageBox.warning(self, "Error", "Please enter a valid student email address (e.g., name@student.edu.my)")
             return
         if not re.match(r"^[A-Za-z]+([ /@.'-][A-Za-z]+)*$", full_name):
             QMessageBox.warning(self, "Error", "Full Name can only contain these six symbols: /  space  -  @  '  .")

@@ -44,7 +44,14 @@ class WorkspaceSuite(QWidget):
         self.btn_nav_messages = QPushButton("Messages")
         self.btn_nav_messages.setStyleSheet("background: transparent; border: transparent;")
 
-        for btn in [self.btn_nav_profile, self.btn_nav_zest, self.btn_nav_explore, self.btn_nav_messages]:
+        buttons = [
+            self.btn_nav_profile, 
+            self.btn_nav_zest, 
+            self.btn_nav_explore, 
+            self.btn_nav_messages
+        ]
+
+        for btn in buttons:
             btn.setStyleSheet("text-align: left; padding: 12px; background: transparent; border-radius: 4px;")
             sidebar_layout.addWidget(btn)
 
@@ -56,9 +63,7 @@ class WorkspaceSuite(QWidget):
         sidebar_layout.addStretch()
         main_layout.addWidget(sidebar)
 
-        
         self.tab_deck = QStackedWidget()
-        
         
         self.build_profile_tab()
         self.build_zest_tab()
@@ -74,9 +79,21 @@ class WorkspaceSuite(QWidget):
         if index == 1: self.refresh_forum_feed()
         if index == 3: self.load_conversations_list()
 
+        buttons = [
+            self.btn_nav_profile, 
+            self.btn_nav_zest, 
+            self.btn_nav_explore, 
+            self.btn_nav_messages
+        ]
+
+        for btn in buttons:
+            btn.setStyleSheet("background: transparent; border: transparent; text-align: left;")
+
+        buttons[index].setStyleSheet("background: transparent; border: transparent; color: #3B82F6; text-align: left; padding: 12px; border-radius: 4px;")
+
+        
 
     # Profile page part
-
     def build_profile_tab(self):
         page = QWidget()
         layout = QHBoxLayout(page)
@@ -114,7 +131,6 @@ class WorkspaceSuite(QWidget):
         
         left_panel.addSpacing(100)
         left_panel.addStretch()
-
 
         right_panel = QVBoxLayout()
         right_panel.addWidget(QLabel("Recent Conversational Interactions:"))
@@ -166,7 +182,6 @@ class WorkspaceSuite(QWidget):
             QMessageBox.critical(self, "Fault Drop", str(err))
 
     def route_to_external_interests_editor(self):
-       
         from interest_page import InterestPage
         self.parent_stack.removeWidget(self.parent_stack.widget(2))
         profile_interest_context_bridge = InterestPage(self.parent_stack, return_to_profile=True)
@@ -187,9 +202,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             QMessageBox.critical(self, "Error", str(err))
 
-
     # ZEST Main Page
-
     def build_zest_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
@@ -197,7 +210,6 @@ class WorkspaceSuite(QWidget):
         header = QLabel("ZEST Global Activity Feed")
         header.setFont(QFont('Segoe UI', 14, QFont.Bold))
         layout.addWidget(header)
-
         
         post_box = QHBoxLayout()
         self.txt_zest_feed_input = QLineEdit()
@@ -209,7 +221,6 @@ class WorkspaceSuite(QWidget):
         post_box.addWidget(btn_submit_post)
         layout.addLayout(post_box)
 
-  
         self.lst_zest_feed_scroller = QListWidget()
         layout.addWidget(self.lst_zest_feed_scroller)
         self.tab_deck.addWidget(page)
@@ -238,9 +249,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             print(f"Feed rendering failure drop: {err}")
 
-
     # Search section
-
     def build_explore_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
@@ -266,14 +275,11 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             QMessageBox.critical(self, "Network scan crash", str(err))
 
-
     # Message Page
-
     def build_messages_tab(self):
         page = QWidget()
         layout = QHBoxLayout(page)
 
-       
         left_pane = QVBoxLayout()
         
         search_box = QHBoxLayout()
@@ -289,7 +295,6 @@ class WorkspaceSuite(QWidget):
         self.lst_msg_historical_chats.itemClicked.connect(self.handle_historical_chat_selection_click)
         left_pane.addWidget(self.lst_msg_historical_chats)
 
-     
         right_pane = QVBoxLayout()
         self.lbl_chat_header_active_target = QLabel("Select a user to start chatting")
         self.lbl_chat_header_active_target.setFont(QFont('Segoe UI', 12, QFont.Bold))
