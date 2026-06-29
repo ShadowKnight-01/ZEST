@@ -1,0 +1,71 @@
+ZEST_PROJECT/
+│
+├── frontend/ (Muhd Farhan)
+│   ├── ui/
+│   │   ├── login.py     Y 
+│   │   ├── register.py  Y
+│   │   ├── profile.py   Y
+│   │   ├── chat.py      Y
+│   │   └── home.py      Y
+│   │
+│   ├── assets/
+│   │   └── images/
+│   │   
+│   │
+│   └── main.py
+│
+├── backend/ (Balaa - Leader)
+│   ├── auth.py          Y
+│   ├── matching.py      Y
+│   ├── posts.py         
+│   ├── chat_logic.py    Y
+│   ├── profile.py       Y
+│   └── location.py      
+│
+├── database/ (Jasswin Rao)
+│   ├── connection.py      Y
+│   ├── init_tables.sql    Y
+│   ├── users_table.sql    Y 
+│   ├── messages_table.sql Y
+│   └── posts_table.sql    Y
+│   
+└── requirements.txt
+
+Frontend: QtPy
+Backend: Python
+Cloud DB: Supabase
+
+register -> additional_information -> *Interest* -> Login -> Zest_main -> chat_page        
+                                                                       -> pfpinterface         
+                                                                       -> *explore friend*  
+Login -> Zest_main -> chat_page        
+                   -> pfpinterface         
+                   -> *explore friend* 
+
+
+ZEST_PROJECT/
+│
+├── frontend/ (Muhd Farhan)
+│   ├── ui/
+│   │   ├── login.py     Y 
+│   │   ├── register.py  Y
+│   │   ├── profile.py   Y
+│   │   ├── styleSheet.py     Y
+│   │   └── backend/session.py      Y
+│   │
+│   ├── assets/
+│   │   └── images/
+│   │   
+│   │
+│   └── main.py
+│
+├── (Balaa - Leader)
+│   ├── additional_information.py          Y
+│   ├── Interest_page.py      Y       
+│   └── Zest_main.py      
+│
+├── database/ (Jasswin Rao)
+│   ├── main.py   
+│   └── connection.py      Y
+│   
+└── requirements.txt
