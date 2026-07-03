@@ -249,7 +249,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             print(f"Feed rendering failure drop: {err}")
 
-    # Search section
+# Search section
     def build_explore_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
@@ -269,12 +269,53 @@ class WorkspaceSuite(QWidget):
     def scan_network_directory(self):
         try:
             self.lst_explore_directory.clear()
+
+            owner_query = supabase.table("users").select("interest").eq("user_id", SESSION["user_id"]).single().execute()
+            owner_interest_str = owner_query.data.get("interest") if owner_query.data else ""
+            
+            if owner_interest_str and owner_interest_str.strip().lower() != "none":
+                owner_interests = {trait.strip().lower() for trait in owner_interest_str.split(",") if trait.strip()}
+            else:
+                owner_interests = set()
+
             result = supabase.table("users").select("username, interest").neq("user_id", SESSION["user_id"]).execute()
+            
+            matched_users = []
+
             for u in result.data:
-                self.lst_explore_directory.addItem(f"User: {u['username']}  | Focus Traits: {u.get('interest', 'None')}")
+                user_interest_str = u.get("interest")
+                if not user_interest_str or user_interest_str.strip().lower() == "none":
+                    continue  # Skip users with no traits right away
+                
+                user_traits_mapped = {trait.strip().lower(): trait.strip() for trait in user_interest_str.split(",") if trait.strip()}
+                user_interests_set = set(user_traits_mapped.keys())
+
+                intersecting_keys = owner_interests.intersection(user_interests_set)
+
+                if intersecting_keys:
+                  
+                    matched_traits = [user_traits_mapped[k] for k in intersecting_keys]
+                    
+                    matched_users.append({
+                        "username": u["username"],
+                        "all_traits": user_interest_str,
+                        "intersecting": matched_traits,
+                        "match_count": len(intersecting_keys)
+                    })
+
+            matched_users.sort(key=lambda x: x["match_count"], reverse=True)
+
+            for mu in matched_users:
+                intersect_str = ", ".join(mu["intersecting"])
+                display_text = f"User: {mu['username']} | Intersecting: {intersect_str} | Focus Traits: {mu['all_traits']}"
+                self.lst_explore_directory.addItem(display_text)
+
+            if not matched_users:
+                self.lst_explore_directory.addItem("No active users found sharing your interests.")
+
         except Exception as err:
             QMessageBox.critical(self, "Network scan crash", str(err))
-
+            
     # Message Page
     def build_messages_tab(self):
         page = QWidget()
