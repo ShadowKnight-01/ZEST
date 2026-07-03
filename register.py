@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QStackedWidget, QVBoxLayout, 
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QComboBox, 
-    QMessageBox, QListWidget, QFrame, QCheckBox, QGridLayout, QScrollArea
+    QWidget, QVBoxLayout, QLabel, 
+    QLineEdit, QPushButton, QMessageBox
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont

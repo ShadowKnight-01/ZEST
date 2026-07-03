@@ -9,7 +9,7 @@ from register import RegisterPage
 from additional_information import AdditionalInfoPage
 from interest_page import InterestPage
 from loginpage import LoginPage
-from zest_main import WorkspaceSuite
+from zest_main import SideNavigate
 
 class ApplicationExecutionEngine(QMainWindow):
     def __init__(self):
@@ -32,7 +32,7 @@ class ApplicationExecutionEngine(QMainWindow):
         self.deck.addWidget(AdditionalInfoPage(self.deck))
         self.deck.addWidget(InterestPage(self.deck))
         self.deck.addWidget(LoginPage(self.deck))
-        self.deck.addWidget(WorkspaceSuite(self.deck))
+        self.deck.addWidget(SideNavigate(self.deck))
 
         self.deck.setCurrentIndex(3)
 

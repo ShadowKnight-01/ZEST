@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont
 from Database.db_connect import supabase
 from backend.session import SESSION
 
-class WorkspaceSuite(QWidget):
+class SideNavigate(QWidget):
     def __init__(self, stack_manager):
         super().__init__()
         self.parent_stack = stack_manager
@@ -65,19 +65,19 @@ class WorkspaceSuite(QWidget):
 
         self.tab_deck = QStackedWidget()
         
-        self.build_profile_tab()
-        self.build_zest_tab()
-        self.build_explore_tab()
-        self.build_messages_tab()
+        self.profile_page()
+        self.main_page()
+        self.explore_page()
+        self.messages_page()
 
         main_layout.addWidget(self.tab_deck)
         self.setLayout(main_layout)
 
     def switch_tab(self, index):
         self.tab_deck.setCurrentIndex(index)
-        if index == 0: self.sync_dynamic_profile_view()
-        if index == 1: self.refresh_forum_feed()
-        if index == 3: self.load_conversations_list()
+        if index == 0: self.load_profile_data()
+        if index == 1: self.load_feed()
+        if index == 3: self.load_chat_list()
 
         buttons = [
             self.btn_nav_profile, 
@@ -94,7 +94,7 @@ class WorkspaceSuite(QWidget):
         
 
     # Profile page part
-    def build_profile_tab(self):
+    def profile_page(self):
         page = QWidget()
         layout = QHBoxLayout(page)
 
@@ -116,10 +116,10 @@ class WorkspaceSuite(QWidget):
         self.lbl_prof_interests = QLabel("Interests: ")
 
         btn_save_username = QPushButton("Save New Username")
-        btn_save_username.clicked.connect(self.update_username_inline)
+        btn_save_username.clicked.connect(self.update_username)
 
         btn_edit_interests = QPushButton("Edit Interests Tags")
-        btn_edit_interests.clicked.connect(self.route_to_external_interests_editor)
+        btn_edit_interests.clicked.connect(self.edit_interests)
 
         # Personal Forum Feed Sub-List
         left_panel.addWidget(self.lbl_prof_fullname)
@@ -141,7 +141,7 @@ class WorkspaceSuite(QWidget):
         layout.addLayout(right_panel, 4)
         self.tab_deck.addWidget(page)
 
-    def sync_dynamic_profile_view(self):
+    def load_profile_data(self):
         self.lbl_prof_fullname.setText(SESSION["full_name"])
         self.txt_editable_username.setText(SESSION["username"])
         self.lbl_prof_gender.setText(f"Gender: {SESSION['gender']}")
@@ -164,7 +164,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             print(f"Database Error: {err}")
 
-    def update_username_inline(self):
+    def update_username(self):
         new_un = self.txt_editable_username.text().strip()
         if not new_un or new_un == SESSION["username"]: return
 
@@ -181,29 +181,15 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             QMessageBox.critical(self, "Fault Drop", str(err))
 
-    def route_to_external_interests_editor(self):
+    def edit_interests(self):
         from interest_page import InterestPage
         self.parent_stack.removeWidget(self.parent_stack.widget(2))
         profile_interest_context_bridge = InterestPage(self.parent_stack, return_to_profile=True)
         self.parent_stack.insertWidget(2, profile_interest_context_bridge)
         self.parent_stack.setCurrentIndex(2)
 
-    def submit_profile_forum_post(self):
-        txt = self.txt_profile_forum_input.toPlainText().strip()
-        if not txt: return
-        try:
-            supabase.table("posts").insert({
-                "user_id": SESSION["user_id"],
-                "username": SESSION["username"],
-                "content": txt
-            }).execute()
-            self.txt_profile_forum_input.clear()
-            QMessageBox.information(self, "Success", "Forum post published.")
-        except Exception as err:
-            QMessageBox.critical(self, "Error", str(err))
-
     # ZEST Main Page
-    def build_zest_tab(self):
+    def main_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
 
@@ -215,7 +201,7 @@ class WorkspaceSuite(QWidget):
         self.txt_zest_feed_input = QLineEdit()
         self.txt_zest_feed_input.setPlaceholderText("Broadcast something onto the ZEST timeline...")
         btn_submit_post = QPushButton("Create Post")
-        btn_submit_post.clicked.connect(self.submit_zest_global_feed_post)
+        btn_submit_post.clicked.connect(self.global_feed_post)
         
         post_box.addWidget(self.txt_zest_feed_input)
         post_box.addWidget(btn_submit_post)
@@ -225,7 +211,7 @@ class WorkspaceSuite(QWidget):
         layout.addWidget(self.lst_zest_feed_scroller)
         self.tab_deck.addWidget(page)
 
-    def submit_zest_global_feed_post(self):
+    def global_feed_post(self):
         txt = self.txt_zest_feed_input.text().strip()
         if not txt: return
         try:
@@ -235,11 +221,11 @@ class WorkspaceSuite(QWidget):
                 "content": txt
             }).execute()
             self.txt_zest_feed_input.clear()
-            self.refresh_forum_feed()
+            self.load_feed()
         except Exception as err:
             QMessageBox.critical(self, "Error", str(err))
 
-    def refresh_forum_feed(self):
+    def load_feed(self):
         try:
             self.lst_zest_feed_scroller.clear()
             result = supabase.table("posts").select("*").order("created_at", desc=True).execute()
@@ -250,7 +236,7 @@ class WorkspaceSuite(QWidget):
             print(f"Feed rendering failure drop: {err}")
 
 # Search section
-    def build_explore_tab(self):
+    def explore_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
         
@@ -258,15 +244,15 @@ class WorkspaceSuite(QWidget):
         title.setFont(QFont('Segoe UI', 14, QFont.Bold))
         layout.addWidget(title)
 
-        btn_pull_directory = QPushButton("Scan Network Active Nodes")
-        btn_pull_directory.clicked.connect(self.scan_network_directory)
+        btn_pull_directory = QPushButton("Find people with shared interests")
+        btn_pull_directory.clicked.connect(self.find_people)
         layout.addWidget(btn_pull_directory)
 
         self.lst_explore_directory = QListWidget()
         layout.addWidget(self.lst_explore_directory)
         self.tab_deck.addWidget(page)
 
-    def scan_network_directory(self):
+    def find_people(self):
         try:
             self.lst_explore_directory.clear()
 
@@ -317,7 +303,7 @@ class WorkspaceSuite(QWidget):
             QMessageBox.critical(self, "Network scan crash", str(err))
             
     # Message Page
-    def build_messages_tab(self):
+    def messages_page(self):
         page = QWidget()
         layout = QHBoxLayout(page)
 
@@ -327,13 +313,13 @@ class WorkspaceSuite(QWidget):
         self.txt_msg_user_search = QLineEdit()
         self.txt_msg_user_search.setPlaceholderText("Search profiles...")
         btn_trigger_msg_search = QPushButton("Search")
-        btn_trigger_msg_search.clicked.connect(self.execute_chat_user_lookup)
+        btn_trigger_msg_search.clicked.connect(self.search_chat_users)
         search_box.addWidget(self.txt_msg_user_search)
         search_box.addWidget(btn_trigger_msg_search)
         left_pane.addLayout(search_box)
 
         self.lst_msg_historical_chats = QListWidget()
-        self.lst_msg_historical_chats.itemClicked.connect(self.handle_historical_chat_selection_click)
+        self.lst_msg_historical_chats.itemClicked.connect(self.open_chat)
         left_pane.addWidget(self.lst_msg_historical_chats)
 
         right_pane = QVBoxLayout()
@@ -347,10 +333,10 @@ class WorkspaceSuite(QWidget):
         message_input_box = QHBoxLayout()
         self.txt_chat_payload_input = QLineEdit()
         self.txt_chat_payload_input.setPlaceholderText("Type your message here...")
-        self.txt_chat_payload_input.returnPressed.connect(self.transmit_direct_message)
+        self.txt_chat_payload_input.returnPressed.connect(self.send_message)
         
         btn_send_msg = QPushButton("Send")
-        btn_send_msg.clicked.connect(self.transmit_direct_message)
+        btn_send_msg.clicked.connect(self.send_message)
         message_input_box.addWidget(self.txt_chat_payload_input)
         message_input_box.addWidget(btn_send_msg)
         right_pane.addLayout(message_input_box)
@@ -359,7 +345,7 @@ class WorkspaceSuite(QWidget):
         layout.addLayout(right_pane, 6)
         self.tab_deck.addWidget(page)
 
-    def load_conversations_list(self):
+    def load_chat_list(self):
         try:
             self.lst_msg_historical_chats.clear()
             result = supabase.table("messages").select("sender_id, receiver_id").or_(f"sender_id.eq.{SESSION['user_id']},receiver_id.eq.{SESSION['user_id']}").execute()
@@ -376,7 +362,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             print(f"History fetch error: {err}")
 
-    def execute_chat_user_lookup(self):
+    def search_chat_users(self):
         term = self.txt_msg_user_search.text().strip()
         if not term: return
         try:
@@ -387,7 +373,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             QMessageBox.critical(self, "Search Fault", str(err))
 
-    def handle_historical_chat_selection_click(self, item):
+    def open_chat(self, item):
         text = item.text()
        
         username = text.split(" (")[0]
@@ -395,9 +381,9 @@ class WorkspaceSuite(QWidget):
         
         self.active_chat_receiver_id = receiver_uuid
         self.lbl_chat_header_active_target.setText(f"Chat Session Running -> @{username}")
-        self.stream_live_chat_history()
+        self.load_chat_history()
 
-    def stream_live_chat_history(self):
+    def load_chat_history(self):
         if not self.active_chat_receiver_id: return
         try:
             self.lst_chat_message_history_stream.clear()
@@ -415,7 +401,7 @@ class WorkspaceSuite(QWidget):
         except Exception as err:
             print(f"Critical stream drop error: {err}")
 
-    def transmit_direct_message(self):
+    def send_message(self):
         msg_payload = self.txt_chat_payload_input.text().strip()
         if not msg_payload or not self.active_chat_receiver_id: 
             return
@@ -427,7 +413,7 @@ class WorkspaceSuite(QWidget):
             }).execute()
             
             self.txt_chat_payload_input.clear()
-            self.stream_live_chat_history()
+            self.load_chat_history()
             self.lst_chat_message_history_stream.scrollToBottom()
         except Exception as err:
             QMessageBox.critical(self, "Transmission Failure",f"Could not send message: {str(err)}")
