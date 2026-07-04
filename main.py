@@ -11,7 +11,7 @@ from interest_page import InterestPage
 from loginpage import LoginPage
 from zest_main import SideNavigate
 
-class ApplicationExecutionEngine(QMainWindow):
+class Zest_Engine(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("ZEST Application")
@@ -38,7 +38,7 @@ class ApplicationExecutionEngine(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    engine = ApplicationExecutionEngine()
+    engine = Zest_Engine()
     engine.show()
     sys.exit(app.exec_())
     
