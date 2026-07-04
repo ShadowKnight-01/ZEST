@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, 
-    QLabel, QPushButton,
+    QWidget, QVBoxLayout, QLabel, QPushButton,
     QMessageBox, QCheckBox, QGridLayout
 )
 from PyQt5.QtCore import Qt

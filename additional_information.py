@@ -91,6 +91,10 @@ class AdditionalInfoPage(QWidget):
     def save_data(self):
         dob_str = self.txt_dob.text().strip() # dob date of birth
         gender = self.cmb_gender.currentText()
+        education = self.cmb_education.currentText()
+        course = self.txt_course.text().strip()
+        state = self.txt_state.text().strip()
+        city = self.txt_city.text().strip()
         
         birth_date = None
         for format in ("%Y-%m-%d", "%d-%m-%Y"):
@@ -111,7 +115,11 @@ class AdditionalInfoPage(QWidget):
             supabase.table("users").update({
                 "gender": gender,
                 "birthday": clean_supabase_date,
-                "age": age
+                "age": age,
+                "course": course,
+                "education": education,
+                "state": state,
+                "city": city
             }).eq("user_id", SESSION["user_id"]).execute()
 
             SESSION["gender"] = gender

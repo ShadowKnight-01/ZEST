@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QStackedWidget, QVBoxLayout, 
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QComboBox, 
-    QMessageBox, QListWidget, QFrame, QCheckBox, QGridLayout, QScrollArea
+    QWidget, QVBoxLayout, 
+    QLabel, QLineEdit, QPushButton, QMessageBox
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -79,9 +78,9 @@ class LoginPage(QWidget):
             SESSION["interest"] = db_user.get("interest", "None Selected")
 
             # Route execution out directly to Workspace Suite Container
-            self.stack.widget(4).sync_dynamic_profile_view()
-            self.stack.widget(4).refresh_forum_feed()
-            self.stack.widget(4).load_conversations_list()
+            self.stack.widget(4).load_profile_data()
+            self.stack.widget(4).load_feed()
+            self.stack.widget(4).load_chat_list()
             self.stack.setCurrentIndex(4)
 
         except Exception as err:
