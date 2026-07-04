@@ -254,30 +254,37 @@ class WorkspaceSuite(QWidget):
         page = QWidget()
         layout = QVBoxLayout(page)
         
+        # Section Title Header
         title = QLabel("Explore Active Platform Network Users")
         title.setFont(QFont('Segoe UI', 14, QFont.Bold))
         layout.addWidget(title)
 
+# Scan Trigger Button
         btn_pull_directory = QPushButton("Scan Network Active Nodes")
         btn_pull_directory.clicked.connect(self.scan_network_directory)
         layout.addWidget(btn_pull_directory)
 
+# List Widget container to display matched results
         self.lst_explore_directory = QListWidget()
         layout.addWidget(self.lst_explore_directory)
+        # Register the page view into the main tab layout stack deck
         self.tab_deck.addWidget(page)
 
     def scan_network_directory(self):
         try:
             self.lst_explore_directory.clear()
 
+            # 1. Fetch the logged-in owner's own interests from Supabase
             owner_query = supabase.table("users").select("interest").eq("user_id", SESSION["user_id"]).single().execute()
             owner_interest_str = owner_query.data.get("interest") if owner_query.data else ""
             
+            # Clean and convert owner interests to a standardized lowercase set for precise matching
             if owner_interest_str and owner_interest_str.strip().lower() != "none":
                 owner_interests = {trait.strip().lower() for trait in owner_interest_str.split(",") if trait.strip()}
             else:
                 owner_interests = set()
 
+            # 2. Pull all other network users from Supabase
             result = supabase.table("users").select("username, interest").neq("user_id", SESSION["user_id"]).execute()
             
             matched_users = []
@@ -287,13 +294,16 @@ class WorkspaceSuite(QWidget):
                 if not user_interest_str or user_interest_str.strip().lower() == "none":
                     continue  # Skip users with no traits right away
                 
+                # Split, clean, and map user's traits while keeping their original casing for UI display
                 user_traits_mapped = {trait.strip().lower(): trait.strip() for trait in user_interest_str.split(",") if trait.strip()}
                 user_interests_set = set(user_traits_mapped.keys())
 
+                # Find the intersection between the owner and this user
                 intersecting_keys = owner_interests.intersection(user_interests_set)
 
+                # 3. Only include the user if they share at least one mutual trait
                 if intersecting_keys:
-                  
+                    # Restore original capitalization for the UI presentation
                     matched_traits = [user_traits_mapped[k] for k in intersecting_keys]
                     
                     matched_users.append({
@@ -303,8 +313,10 @@ class WorkspaceSuite(QWidget):
                         "match_count": len(intersecting_keys)
                     })
 
+            # 4. Sort users from highest match count to lowest
             matched_users.sort(key=lambda x: x["match_count"], reverse=True)
 
+            # 5. Populate sorted results into the QListWidget
             for mu in matched_users:
                 intersect_str = ", ".join(mu["intersecting"])
                 display_text = f"User: {mu['username']} | Intersecting: {intersect_str} | Focus Traits: {mu['all_traits']}"

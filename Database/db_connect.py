@@ -6,7 +6,7 @@ from supabase import create_client, Client
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_dir, "connection.env")
 
-# 2. Load your custom environment file explicitly from that folder
+# 2. Load custom environment file explicitly from that folder
 load_dotenv(env_path)
 
 # 3. Extract the credentials securely

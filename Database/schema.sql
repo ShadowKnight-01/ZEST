@@ -31,12 +31,19 @@ CREATE TABLE users (
 
 -- Create POSTS table
 CREATE TABLE posts (
+    -- Auto-incrementing unique identifier for each post
     post_id SERIAL PRIMARY KEY,
     user_id VARCHAR(20) NOT NULL, -- Changed to VARCHAR(20) to match parent table's PK type
+ -- Main text content of the social post  
     content TEXT NOT NULL,
+    -- Optional path or URL to an uploaded image associated with the post
     image VARCHAR(255) DEFAULT NULL,
+    -- Timestamp of when the post was created (automatically captures current date/time with timezone)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-
+-- Foreign Key Constraint:
+    -- Links user_id to the primary key of the users table.
+    -- ON DELETE CASCADE ensures if a user account is deleted, all their posts are automatically wiped.
+    FOREIGN KEY (user_id)
     FOREIGN KEY (user_id)
     REFERENCES users(user_id)
     ON DELETE CASCADE
