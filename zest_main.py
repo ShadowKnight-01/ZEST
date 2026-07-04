@@ -11,30 +11,30 @@ from backend.session import SESSION
 class SideNavigate(QWidget):
     def __init__(self, stack_manager):
         super().__init__()
-        self.parent_stack = stack_manager
-        self.active_chat_receiver_id = None
-        self.init_ui()
+        self.parent_stack = stack_manager        # save the main page manager
+        self.active_chat_receiver_id = None      # store the currently selected chat user
+        self.init_ui()                           # make the side interface
 
     def init_ui(self):
-        main_layout = QHBoxLayout(self)
+        main_layout = QHBoxLayout(self)          # create the main horizontel layout
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Left Column: System Navigation Sidebar (Sidebar Layout Layer)
-        sidebar = QFrame()
+        # make the left sidebar
+        sidebar = QFrame()                    
         sidebar.setObjectName("Sidebar")
         sidebar.setFixedWidth(200)
-        sidebar_layout = QVBoxLayout(sidebar)
+        sidebar_layout = QVBoxLayout(sidebar)    # create the sidebar layout
         sidebar_layout.setContentsMargins(10, 20, 10, 20)
         sidebar_layout.setSpacing(10)
 
-        brand = QLabel("ZEST")
+        brand = QLabel("ZEST")       # create the app logo
         brand.setFont(QFont('Times New Roman', 16, QFont.Bold))
         brand.setStyleSheet("background: transparent; color: white; margin-bottom: 20px;")
         brand.setAlignment(Qt.AlignCenter)
         sidebar_layout.addWidget(brand)
 
-        # The 4 navigational commands 
+        # make the buttons for navigate
         self.btn_nav_profile = QPushButton("Profile")
         self.btn_nav_profile.setStyleSheet("background: transparent; border: transparent;")
         self.btn_nav_zest = QPushButton("ZEST Main")
@@ -44,52 +44,52 @@ class SideNavigate(QWidget):
         self.btn_nav_messages = QPushButton("Messages")
         self.btn_nav_messages.setStyleSheet("background: transparent; border: transparent;")
 
-        buttons = [
+        buttons = [             # store all the navigation buttons in a list
             self.btn_nav_profile, 
             self.btn_nav_zest, 
             self.btn_nav_explore, 
             self.btn_nav_messages
         ]
 
-        for btn in buttons:
+        for btn in buttons:       # add the button to the side bar
             btn.setStyleSheet("text-align: left; padding: 12px; background: transparent; border-radius: 4px;")
             sidebar_layout.addWidget(btn)
 
-        self.btn_nav_profile.clicked.connect(lambda: self.switch_tab(0))
+        self.btn_nav_profile.clicked.connect(lambda: self.switch_tab(0))        # connect the each button to the side bar
         self.btn_nav_zest.clicked.connect(lambda: self.switch_tab(1))
         self.btn_nav_explore.clicked.connect(lambda: self.switch_tab(2))
         self.btn_nav_messages.clicked.connect(lambda: self.switch_tab(3))
 
-        sidebar_layout.addStretch()
-        main_layout.addWidget(sidebar)
+        sidebar_layout.addStretch()                      # push the button to the top
+        main_layout.addWidget(sidebar)                   # Add the sidebar to the main layout
 
-        self.tab_deck = QStackedWidget()
+        self.tab_deck = QStackedWidget()                 # create the stacked widget for the pages
         
-        self.profile_page()
+        self.profile_page()                              # create all the pages
         self.main_page()
         self.explore_page()
         self.messages_page()
 
-        main_layout.addWidget(self.tab_deck)
-        self.setLayout(main_layout)
+        main_layout.addWidget(self.tab_deck)                 # add the page container to tha main layout
+        self.setLayout(main_layout)                          # set the layout for this widgets
 
-    def switch_tab(self, index):
+    def switch_tab(self, index):                             # switch to the selected page 
         self.tab_deck.setCurrentIndex(index)
-        if index == 0: self.load_profile_data()
+        if index == 0: self.load_profile_data()              # load the latest data for the selected page
         if index == 1: self.load_feed()
         if index == 3: self.load_chat_list()
 
-        buttons = [
+        buttons = [                                          # store all the navigate btn
             self.btn_nav_profile, 
             self.btn_nav_zest, 
             self.btn_nav_explore, 
             self.btn_nav_messages
         ]
 
-        for btn in buttons:
+        for btn in buttons:                               # reset all btn style
             btn.setStyleSheet("background: transparent; border: transparent; text-align: left;")
 
-        buttons[index].setStyleSheet("background: transparent; border: transparent; color: #3B82F6; text-align: left; padding: 12px; border-radius: 4px;")
+        buttons[index].setStyleSheet("background: transparent; border: transparent; color: #3B82F6; text-align: left; padding: 12px; border-radius: 4px;")    # Highlight the selected btn
 
         
 

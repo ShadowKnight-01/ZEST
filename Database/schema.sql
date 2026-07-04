@@ -7,8 +7,8 @@ SET session_replication_role = 'origin';
 
 -- Create USERS table
 CREATE TABLE users (
-    id SERIAL, -- Auto-incrementing integer
-    user_id VARCHAR(20) NOT NULL,
+    id SERIAL,                              -- just a num first person id is 1 and he tenth is 10
+    user_id VARCHAR(20) NOT NULL,           -- user id get generated auto maticly with str(uuid.uuid4())
     full_name VARCHAR(100) NOT NULL,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
@@ -21,10 +21,10 @@ CREATE TABLE users (
     state VARCHAR(50),
     city VARCHAR(50),
     profile_pic VARCHAR(255),
-    user_or_admin VARCHAR(20) DEFAULT 'users' CHECK (user_or_admin IN ('users', 'admin')), -- Postgres alternative to ENUM inline
+    user_or_admin VARCHAR(20) DEFAULT 'users' CHECK (user_or_admin IN ('users', 'admin')), 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (user_id), -- Keeps user_id as your primary key
+    PRIMARY KEY (user_id),                  -- Make user_id as primary key
     CONSTRAINT uk_username UNIQUE (username),
     CONSTRAINT uk_email UNIQUE (email)
 );
