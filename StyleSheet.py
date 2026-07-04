@@ -1,61 +1,61 @@
 Style_used_to_in_Login = """
-    QWidget {
-        background-color: #0B1120;
-        color: #F8FAFC;
-        font-family: Segoe UI;
-        font-size: 14px;
+    QWidget { /* Main window and base text styling */
+        background-color: #0B1120; /* Deep dark blue background */
+        color: #F8FAFC; /* Off-white text */
+        font-family: Segoe UI; /* Default font */
+        font-size: 14px; /* Default text size */
     }
 
-    QLineEdit, QTextEdit, QComboBox, QListWidget {
-        background-color: #253247;
-        border: 2px solid transparent;
-        border-radius: 10px;
-        padding: 12px;
-        color: white;
+    QLineEdit, QTextEdit, QComboBox, QListWidget { /* Input fields and lists */
+        background-color: #253247; /* Lighter dark background */
+        border: 2px solid transparent; /* Invisible border */
+        border-radius: 10px; /* Rounded corners */
+        padding: 12px; /* Inner spacing */
+        color: white; /* Text color */
+        font-size: 11pt; /* Text size */
+    }
+
+    QLineEdit:focus, QTextEdit:focus { /* When typing in a text box */
+        border: 2px solid #3B82F6; /* Bright blue outline */
+    }
+
+    QPushButton { /* Primary buttons */
+        background-color: #3B82F6; /* Bright blue background */
+        border: none; /* No border */
+        border-radius: 10px; /* Rounded corners */
+        padding: 12px; /* Button thickness */
         font-size: 11pt;
+        font-weight: bold; /* Bold text */
     }
 
-    QLineEdit:focus, QTextEdit:focus {
-        border: 2px solid #3B82F6;
+    QPushButton:hover { /* When mouse is over the button */
+        background-color: #2563EB; /* Darker blue */
     }
 
-    QPushButton {
-        background-color: #3B82F6;
-        border: none;
-        border-radius: 10px;
-        padding: 12px;
-        font-size: 11pt;
-        font-weight: bold;
+    QPushButton:disabled { /* Inactive or locked buttons */
+        background-color: #29292E; /* Muted dark gray */
+        color: #7C7C8A; /* Faded text */
     }
 
-    QPushButton:hover {
-        background-color: #2563EB;
+    QFrame#Sidebar { /* Specific styling for the Sidebar */
+        background-color: #202024; /* Dark gray background */
+        border-right: 1px solid #323238; /* Right dividing line */
     }
 
-    QPushButton:disabled {
-        background-color: #29292E;
-        color: #7C7C8A;
+    QCheckBox { /* Checkbox widget spacing */
+        spacing: 8px; /* Gap between box and text */
     }
 
-    QFrame#Sidebar {
-        background-color: #202024;
-        border-right: 1px solid #323238;
-    }
-
-    QCheckBox {
-        spacing: 8px;
-    }
-
-    QCheckBox::indicator {
+    QCheckBox::indicator { /* The clickable square */
         width: 18px;
         height: 18px;
-        background-color: #202024;
-        border: 1px solid #323238;
-        border-radius: 4px;
+        background-color: #202024; /* Dark gray box */
+        border: 1px solid #323238; /* Gray outline */
+        border-radius: 4px; /* Rounded corners */
     }
     
-    QCheckBox::indicator:checked {
-        background-color: #00B37E;
-        border: 1px solid #00B37E;
+    QCheckBox::indicator:checked { /* When successfully ticked */
+        background-color: #00B37E; /* Green fill */
+        border: 1px solid #00B37E; /* Green outline */
     }
 """

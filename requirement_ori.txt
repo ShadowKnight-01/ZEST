@@ -1,71 +1,31 @@
 ZEST_PROJECT/
 │
-├── frontend/ (Muhd Farhan)
-│   ├── ui/
-│   │   ├── login.py     Y 
-│   │   ├── register.py  Y
-│   │   ├── profile.py   Y
-│   │   ├── chat.py      Y
-│   │   └── home.py      Y
-│   │
-│   ├── assets/
-│   │   └── images/
-│   │   
-│   │
-│   └── main.py
+├── backend/
+│   └── session.py                          - Balaa 
 │
-├── backend/ (Balaa - Leader)
-│   ├── auth.py          Y
-│   ├── matching.py      Y
-│   ├── posts.py         
-│   ├── chat_logic.py    Y
-│   ├── profile.py       Y
-│   └── location.py      
-│
-├── database/ (Jasswin Rao)
-│   ├── connection.py      Y
-│   ├── init_tables.sql    Y
-│   ├── users_table.sql    Y 
-│   ├── messages_table.sql Y
-│   └── posts_table.sql    Y
+├── Database/
+|   └── supabase/
+│       ├── db_connect.py                   - Jasswin Rao   
+│       ├── fetch other user interrest.sql  - Jasswin Rao
+│       ├── post.sql                        - Jasswin Rao
+│       ├── user interest match finder.sql  - Jasswin Rao
+│       ├── update_profile.sql              - Jasswin Rao
+│       └── schema.sql/
+|           ├── user                        - Balaa
+|           ├── post                        - Jasswin Rao
+|           └── message                     - Farhan
 │   
-└── requirements.txt
-
-Frontend: QtPy
-Backend: Python
-Cloud DB: Supabase
-
-register -> additional_information -> *Interest* -> Login -> Zest_main -> chat_page        
-                                                                       -> pfpinterface         
-                                                                       -> *explore friend*  
-Login -> Zest_main -> chat_page        
-                   -> pfpinterface         
-                   -> *explore friend* 
-
-
-ZEST_PROJECT/
-│
-├── frontend/ (Muhd Farhan)
-│   ├── ui/
-│   │   ├── login.py     Y 
-│   │   ├── register.py  Y
-│   │   ├── profile.py   Y
-│   │   ├── styleSheet.py     Y
-│   │   └── backend/session.py      Y
-│   │
-│   ├── assets/
-│   │   └── images/
-│   │   
-│   │
-│   └── main.py
-│
-├── (Balaa - Leader)
-│   ├── additional_information.py          Y
-│   ├── Interest_page.py      Y       
-│   └── Zest_main.py      
-│
-├── database/ (Jasswin Rao)
-│   ├── main.py   
-│   └── connection.py      Y
-│   
-└── requirements.txt
+├── .gitignore
+├── additional_information.py               - Jasswin Rao
+├── Interest_page.py                        - Jasswin Rao
+├── loginpage.py                            - Balaa
+├── main.py                                 - Balaa
+├── register.py                             - Balaa
+├── requirement_ori.txt                 
+├── StyleSheet.py                           - Farhan
+└── zest_main.py                            
+    ├── sideNavigation   11 - 92            - Balaa
+    ├── Profile_page     96 -189            - Farhan
+    ├── Main_page       192 -236            - Farhan
+    ├── Explore_page    239 -303            - Jasswin Rao
+    └── Message_page    306 -419            - Farhan

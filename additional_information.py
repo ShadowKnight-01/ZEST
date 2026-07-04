@@ -98,7 +98,7 @@ class AdditionalInfoPage(QWidget):
 # Assemble individual labels and input elements onto the scrollable layout canvas
         scroll_layout.addWidget(QLabel("Select Gender:"))
         scroll_layout.addWidget(self.cmb_gender)
-        scroll_layout.addWidget(QLabel("Date of Birth:"))
+        scroll_layout.addWidget(QLabel("Date of Birth: (dd-mm-yyyy)"))
         scroll_layout.addWidget(self.txt_dob)
         scroll_layout.addWidget(QLabel("Academic Course:"))
         scroll_layout.addWidget(self.txt_course)
