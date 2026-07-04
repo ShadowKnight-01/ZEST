@@ -339,6 +339,12 @@ class SideNavigate(QWidget):
         btn_send_msg.clicked.connect(self.send_message)
         message_input_box.addWidget(self.txt_chat_payload_input)
         message_input_box.addWidget(btn_send_msg)
+
+        # Add this inside build_messages_tab()
+        btn_delete_msg = QPushButton("Delete Selected")
+        btn_delete_msg.clicked.connect(self.delete_selected_message)
+        message_input_box.addWidget(btn_delete_msg)
+
         right_pane.addLayout(message_input_box)
 
         layout.addLayout(left_pane, 4)
@@ -417,3 +423,36 @@ class SideNavigate(QWidget):
             self.lst_chat_message_history_stream.scrollToBottom()
         except Exception as err:
             QMessageBox.critical(self, "Transmission Failure",f"Could not send message: {str(err)}")
+
+    def delete_selected_message(self):
+        # 1. Grab the currently clicked message from the chat list
+        selected_items = self.lst_chat_message_history_stream.selectedItems()
+        if not selected_items:
+            QMessageBox.information(self, "Notice", "Please select a message to delete first.")
+            return
+
+        selected_item = selected_items[0]
+        full_text = selected_item.text()
+
+        # 2. Security check: Only allow deleting messages sent by the user
+        if not full_text.startswith("You: "):
+            QMessageBox.warning(self, "Denied", "You can only delete your own messages.")
+            return
+
+        # 3. Strip the "You: " prefix to get the exact raw message text
+        raw_message = full_text.replace("You: ", "", 1)
+
+        try:
+            # 4. Tell Supabase to delete the matching message row
+            supabase.table("messages").delete().match({
+                "sender_id": SESSION["user_id"],
+                "receiver_id": self.active_chat_receiver_id,
+                "message": raw_message
+            }).execute()
+
+            # 5. Remove it instantly from the UI list so it disappears visually
+            row = self.lst_chat_message_history_stream.row(selected_item)
+            self.lst_chat_message_history_stream.takeItem(row)
+
+        except Exception as err:
+            QMessageBox.critical(self, "Error", f"Failed to delete: {str(err)}")        
